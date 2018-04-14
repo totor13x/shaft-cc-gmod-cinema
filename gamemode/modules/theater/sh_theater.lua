@@ -862,7 +862,7 @@ if SERVER then
 	end
 
 	function THEATER:SetPass( pass, ply )
-
+	print("Setting pass".. pass.. " by ".. tostring(ply))
 		if !IsValid(ply) then return end
 		
 		--|
@@ -870,9 +870,14 @@ if SERVER then
 		-- Theater must be private and player must be the owner
 		if !self:IsPrivate() or ply != self:GetOwner() then return end
 
-		-- Clamp new name to 32 chars
-		self._Pass = string.sub(pass,0,32)
+		-- Clamp new name to 4 chars
+		self._Pass = string.sub(pass,0,4)
+		print(self._Pass)
 
+	end
+	
+	function THEATER:GetPass()
+		return self._Pass
 	end
 
 end

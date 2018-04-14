@@ -2,6 +2,13 @@ AddCSLuaFile("cl_init.lua")
 AddCSLuaFile("shared.lua")
 include('shared.lua')
 
+util.AddNetworkString("SendPassword")
+/*
+net.Receive("SendPassword", function(len,ply)
+		SendReply(ply:GetTheater():GetPass() == net.ReadString()
+	end
+end)*/
+
 function ENT:Initialize()
 	self.Entity:SetModel("models/hunter/plates/plate1x1.mdl");
 	self.Entity:PhysicsInit(SOLID_VPHYSICS);
@@ -12,7 +19,6 @@ function ENT:Initialize()
 		phys:Wake()
 		phys:EnableGravity(true);
 	end
-	
 end
 
 function ENT:Think()

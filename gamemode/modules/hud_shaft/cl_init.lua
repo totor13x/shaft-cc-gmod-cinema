@@ -14,7 +14,7 @@ function PANEL:Init()
 	self.entered = false
 	self.special = false
 	self.onclick = false
-	self.isborder = false
+	self.isborder = true
 	self.FakeActivated = false
 end
 
@@ -77,6 +77,7 @@ local blur = Material( "pp/blurscreen" )
 local PANEL = {}
 
 function PANEL:Init()
+	
 end
 
 function PANEL:Paint(w,h)
@@ -111,6 +112,7 @@ if IsValid(button) then button:Remove() end
 gui.EnableScreenClicker( false )
 
 concommand.Add("asdAsd", function()
+
 
 asd = vgui.Create("SPanel")
 asd:SetSize(200,200)
