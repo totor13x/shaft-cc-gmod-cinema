@@ -51,7 +51,7 @@ function SERVICE:GetVideoInfo( data, onSuccess, onFailure )
 			pcall(onSuccess, info)
 		end
 	end
-	local url = string.format( "https://api.vk.com/method/video.get?videos=%s&access_token="..API_KEY_VK, data )
+	local url = string.format( DT['VKAPI'], data, DT['API_KEY_VK'] )
 	self:Fetch( url, onReceive, onFailure )
 end
 
@@ -113,12 +113,11 @@ if CLIENT then
 			end
 			
 			local startTime = CurTime() - Video:StartTime()
-			print(data)
+			
 			data = string.Explode("?",data)[1] 
 			
-			panel:OpenURL('http://api.shaft.im/lidi/cinema/vk/video.php?url='..data..'&time='..startTime)
-			local str = string.format(
-				"theater.setVolume(%s)", theater.GetVolume() )
+			panel:OpenURL(string.format(DT['VKHref'], data, startTime))
+			local str = string.format("theater.setVolume(%s)", theater.GetVolume() )
 			panel:QueueJavascript( str )
 		end
 		self:Fetch( Video:Data(), onReceive, onFailure )

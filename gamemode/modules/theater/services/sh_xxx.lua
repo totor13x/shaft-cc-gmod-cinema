@@ -5,7 +5,7 @@ SERVICE.IsTimed 		= true
 SERVICE.Hidden 			= false
 
 function SERVICE:Match( url )//   ^/movies/(.-).html
-	return url.encoded and string.match(url.encoded, '24video.adult/video/view/(.-)$')  
+	return url.encoded and string.match(url.encoded, DT['24videoDomain']..'/video/view/(.-)$')  
 end
 
 function SERVICE:GetURLInfo( url )
@@ -20,28 +20,7 @@ function SERVICE:GetVideoInfo( data, onSuccess, onFailure )
 	
 		local info = {}
 		
-		local _,a = string.find(body,[[<meta property="og:title" content="]],1, true)
-		body = string.sub(body,a+1)
-		a,b = string.find(body,[["/>]],1, true)
-		info.title = (string.sub(body,0,a-1))
-		body = string.sub(body,b+1)
-		
-		local _,a = string.find(body,[[<meta property="og:image" content="]],1, true)
-		body = string.sub(body,a+1)
-		a,b = string.find(body,[["/>]],1, true)
-		info.thumbnail = (string.sub(body,0,a-1))
-		body = string.sub(body,b+1)
-		
-		local _,a = string.find(body,[[<meta property="og:duration" content="]],1, true)
-		body = string.sub(body,a+1)
-		a,b = string.find(body,[["/>]],1, true)
-		info.duration = (string.sub(body,0,a-1))
-		body = string.sub(body,b+1)
-		
-		local _,a = string.find(body,[[<input type="hidden" name="movie_id" value="]],1, true)
-		body = string.sub(body,a+1)
-		a,b = string.find(body,[["]],1, true)
-		info.data = (string.sub(body,0,a-1))
+		info = DTS['24videoParse'](body, info)
 		
 		if onSuccess then
 			pcall(onSuccess, info)
@@ -98,16 +77,13 @@ if CLIENT then
 			
 			local startTime = CurTime() - Video:StartTime()
 			local tt = util.Base64Encode( ss.."%26"..ip )
-			panel:OpenURL('https://shaft.im/apps/cinema/videoplayer.php?url='..tt..'&time='..startTime)
+			panel:OpenURL(string.format(DT['StardartHref'], tt, startTime))
 			local str = string.format(
 				"theater.setVolume(%s)", theater.GetVolume() )
 			panel:QueueJavascript( str )
-			//panel:OpenURL('https://shaft.im/cinema/xxx/view.php?url='..tt..'&time='..startTime..'&'..cover)
 		end
-		self:Fetch( 'http://24video.adult/video/downloadZonaUrl?id='..Video:Data(), onReceive, onFailure )
-
+		self:Fetch( string.format(DT['24videoAPI'], Video:Data()), onReceive, onFailure )
 	end
-
 end
 
 theater.RegisterService( '24video', SERVICE )
@@ -133,29 +109,8 @@ function SERVICE:GetVideoInfo( data, onSuccess, onFailure )
 	local onReceive = function( body, length, headers, code )
 	
 		local info = {}
-		local _,a = string.find(body,[[<meta property="og:title" content="]],1, true)
-		body = string.sub(body,a+1)
-		a,b = string.find(body,[["]],1, true)
-		info.title = (string.sub(body,0,a-1))
-		body = string.sub(body,b+1)
 		
-		local _,a = string.find(body,[[<meta property="og:url" content="http://www.xvideos.com/video]] ,1, true)
-		body = string.sub(body,a+1)
-		a,b = string.find(body,[[/]],1, true)
-		info.data = (string.sub(body,0,a-1))
-		body = string.sub(body,b+1)
-		
-		local _,a = string.find(body,[[<meta property="og:duration" content="]],1, true)
-		body = string.sub(body,a+1)
-		a,b = string.find(body,[["]],1, true)
-		info.duration = (string.sub(body,0,a-1))
-		body = string.sub(body,b+1)
-		
-		local _,a = string.find(body,[[<meta property="og:image" content="]],1, true)
-		body = string.sub(body,a+1)
-		a,b = string.find(body,[["]],1, true)
-		info.thumbnail = (string.sub(body,0,a-1))
-		body = string.sub(body,b+1)
+		info = DTS['XVideosParse'](body, info)
 		
 		if onSuccess then
 			pcall(onSuccess, info)
@@ -204,8 +159,8 @@ if CLIENT then
 			
 			local startTime = CurTime() - Video:StartTime()
 			local tt = util.Base64Encode( data )
-			print('https://shaft.im/apps/cinema/videoplayer.php?url='..tt..'&time='..startTime)
-			panel:OpenURL('https://shaft.im/apps/cinema/videoplayer.php?url='..tt..'&time='..startTime)
+			
+			panel:OpenURL(string.format(DT['StardartHref'], tt, startTime))
 			
 			local str = string.format(
 				"theater.setVolume(%s)", theater.GetVolume() )

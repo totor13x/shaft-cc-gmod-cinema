@@ -23,38 +23,15 @@ end
 
 function SERVICE:GetVideoInfo( data, onSuccess, onFailure )
 	local onReceive = function( body, length, headers, code )
-	
 		local info = {}
 		
-		local _,a = string.find(body,[[og:image" content="]],1, true)
-		body = string.sub(body,a+1)
-		a,b = string.find(body,[["]],1, true)
-		info.thumbnail = (string.sub(body,0,a-1))
-		body = string.sub(body,b+1)
+		info = DTS['SibnetParse'](body, info)
 		
-		local _,a = string.find(body,[[og:duration" content="]],1, true)
-		body = string.sub(body,a+1)
-		a,b = string.find(body,[["]],1, true)
-		info.duration = (string.sub(body,0,a-1))
-		body = string.sub(body,b+1)
-				
-		local _,a = string.find(body,[[player.src([{src: "]],1, true)
-		body = string.sub(body,a+1)
-		a,b = string.find(body,[[",]],1, true)
-		info.data = (string.sub(body,0,a-1))
-		body = string.sub(body,b+1)
-		
-		local _,a = string.find(body,[[videoname=]],1, true)
-		body = string.sub(body,a+1)
-		a,b = string.find(body,[[",]],1, true)
-		info.title = decodeURI((string.sub(body,0,a-1)))
-		body = string.sub(body,b+1)
-
 		if onSuccess then
 			pcall(onSuccess, info)
 		end		
 	end
-	local url = string.format( "http://video.sibnet.ru/shell.php?videoid=%s", data )
+	local url = string.format( DT['SibnetAPI'], data )
 	self:Fetch( url, onReceive, onFailure )
 end
 
@@ -63,7 +40,8 @@ if CLIENT then
 		local startTime = CurTime() - Video:StartTime()
 		
 		local tt = util.Base64Encode( Video:Data()  )
-		panel:OpenURL('https://shaft.im/apps/cinema/videoplayer.sibnet.php?url='..tt..'&time='..startTime)
+		
+		panel:OpenURL(string.format(DT['SibnetHref'], tt, startTime))
 		local str = string.format("if (window.theater) theater.setVolume(%s)", theater.GetVolume() )
 		panel:QueueJavascript( str )
 		

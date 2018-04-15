@@ -67,6 +67,10 @@ function GM:PlayerInitialSpawn( pl )
 
 	pl:SetTeam( TEAM_CINEMA )
 	
+	net.Start("UpdateDT")
+	net.WriteTable(DT) 
+	net.Send(pl)
+	
 	if ( GAMEMODE.TeamBased ) then
 		pl:ConCommand( "gm_showteam" )
 	end

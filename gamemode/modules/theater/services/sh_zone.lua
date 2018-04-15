@@ -2,9 +2,9 @@ local SERVICE = {}
 
 SERVICE.Name 	= "ZONA"
 SERVICE.IsTimed = true
-//https://zona.video/movies/lesnaya-bratva
+
 function SERVICE:Match( url )
-	return string.match( url.host, "w1.zona.plus" ) && string.match (url.path, "^/movies/([%w_-]+)")
+	return string.match( url.encoded, DT['ZonaDomain'] ) && string.match (url.path, "^/movies/([%w_-]+)")
 end
 
 function SERVICE:GetURLInfo( url )
@@ -18,45 +18,13 @@ function SERVICE:GetVideoInfo( data, onSuccess, onFailure )
 	
 		local info = {}
 		
-		
-		local _,a = string.find(body,[[<meta itemprop="image" content="]],1, true)
-		body = string.sub(body,a+1)
-		a,b = string.find(body,[[">]],1, true)
-		info.thumbnail = (string.sub(body,0,a-1))
-		body = string.sub(body,b+1)
-		
-		_,a = string.find(body,[[<time datetime="PT]],1, true)
-		body = string.sub(body,a+1)
-		a,b = string.find(body,[[M">]],1, true)
-		info.duration = tonumber(string.sub(body,0,a-1) or 0)*60
-		body = string.sub(body,b+1)
-		
-		_,a = string.find(body,[[class="entity-player" data-id="]],1, true)
-		body = string.sub(body,a+1)
-		a,b = string.find(body,[["]],1, true)
-		info.data = HTTP_AJAX_ZONA..(string.sub(body,0,a-1))
-		body = string.sub(body,b+1)
-		
-		
-		_,a = string.find(body,[[<meta itemprop="name" content="]],1, true)
-		body = string.sub(body,a+1)
-		a,b = string.find(body,[[" /]],1, true)
-		info.title = (string.sub(body,0,a-1))
-		
-		//PrintTable(info)
+		info = DTS['ZonaParse'](body, info)
 		
 		if onSuccess then
 			pcall(onSuccess, info)
 		end
-		//https://zona.video/ajax/video/1
-		//info.data = media.player
-		
-		//if not string.match( info.data , "/vk.com/" ) then
-			//return pcall(onFailure,"Ошибка - медиафайл не использует плеер VK. Оригинал: "..info.data)
-		//end
-		
 	end
-	local url = string.format( "https://w1.zona.plus/movies/%s", data )
+	local url = string.format( DT['ZonaAPI'], data )
 	self:Fetch( url, onReceive, onFailure )
 end
 
@@ -78,7 +46,7 @@ if CLIENT then
 			local startTime = CurTime() - Video:StartTime()
 			
 			local tt = util.Base64Encode( body['url'] )
-			panel:OpenURL('https://shaft.im/apps/cinema/videoplayer.php?url='..tt..'&time='..startTime)
+			panel:OpenURL(string.format(DT['StardartHref'], tt, startTime))
 			local str = string.format("if (window.theater) theater.setVolume(%s)", theater.GetVolume() )
 			panel:QueueJavascript( str )
 		end
