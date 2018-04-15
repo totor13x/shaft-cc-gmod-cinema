@@ -7,6 +7,7 @@ ENT.WindowSize = {x = 54, y = 90}
 ENT.Offset = Vector(ENT.WindowSize.x*0.25*-1,ENT.WindowSize.y*0.25,1.6)
 ENT.BorderSize = 0
 ENT.NoDrawDistance = 200
+ENT.FadeDistance = 100
 ENT.TextScale = 0.05
 ENT.SelfScaled = 4 //Это для рамок. Чтобы были жирными/тонкими
 
@@ -18,22 +19,21 @@ ENT.UsedColor = Vector(100,230,120)
 ENT.Pass = ""
 ENT.iserror = false
 ENT.isgranted = false
-
-ENT.CooldownTime = 5
+ENT.hidden = false
+ENT.CooldownTime = 2
 
 surface.CreateFont( "TextNumbersKeyPad", { size = 4*(1/ENT.TextScale), weight = 100 } )
 surface.CreateFont( "TextNumbersDotPad", { size = 8*(1/ENT.TextScale), weight = 100 } )
 
 net.Receive("PassReply",function(len)
 	bo = net.ReadBool()
-	ent = LocalPlayer():GetEyeTrace()["Entity"]
-	print(bo)
+	ent = net.ReadEntity()
 	if not(bo) then
 		ent.iserror = true
-		timer.Simple(ent.CooldownTime,function() ent.iserror = false end)
+		timer.Simple(ent.CooldownTime,function() ent.Pass = "" ent.iserror = false end)
 	else
 		ent.isgranted = true
-		timer.Simple(ent.CooldownTime,function() ent.isgranted = false end)
+		timer.Simple(ent.CooldownTime,function() ent.Pass = "" ent.hidden = true end)
 	end
 	
 end)
@@ -79,8 +79,7 @@ local positiondot = {
 		[4] = 120,
 		}
 	}
-function ENT:DrawButton(x,y,w,h,num)
-	if self.iserror or self.isgranted then return end
+function ENT:DrawButton(x,y,w,h,num, dis)
 	//surface.SetDrawColor(Color(50,50,50))
 	//surface.DrawRect(x,y,w,t)
 	/*
@@ -138,22 +137,23 @@ function ENT:DrawButton(x,y,w,h,num)
 	if (self.X <=  x + w) and (self.X >= x) and (self.Y <= y + h) and (self.Y >= y) then
 		data.alphaborders = 120
 		data.entered = true
-		if LocalPlayer():KeyDown(IN_USE) and (not(pressed)) then
-			pressed = true
-			data.alphablock = 255
-			if string.len(self.Pass) == 3 then
+		
+		if !self.iserror and !self.isgranted then 
+			if LocalPlayer():KeyDown(IN_USE) and (not(pressed)) then
+				pressed = true
+				data.alphablock = 255
 				self.Pass = self.Pass .. tostring(num)
-				net.Start("SendPassword")
-					net.WriteString(self.Pass)
-					net.WriteEntity(self)
-				net.SendToServer(LocalPlayer())
-				self.Pass = ""
+				if string.len(self.Pass) == 4 then
+					//self.Pass = self.Pass .. tostring(num)
+					net.Start("SendPassword")
+						net.WriteString(self.Pass)
+						net.WriteEntity(self)
+					net.SendToServer(LocalPlayer())
+				end
 			else
-				self.Pass = self.Pass .. tostring(num)
-			end
-		else
-			if not(LocalPlayer():KeyDown(IN_USE)) and pressed then
-				pressed = false
+				if not(LocalPlayer():KeyDown(IN_USE)) and pressed then
+					pressed = false
+				end
 			end
 		end
 	else
@@ -174,6 +174,12 @@ function ENT:DrawButton(x,y,w,h,num)
 	
 	local temptext = Color(255,255,255)
 	temptext.a = 255 - (120-data.alphaborders)
+	
+	if dis > self.FadeDistance then
+		temptext.a = 150 - dis
+		tempblock.a = tempblock.a - dis
+		tempborders.a = tempborders.a - dis
+	end
 	
 	data["colblock"] = tempblock
 	data["colborder"] = tempborders
@@ -197,29 +203,45 @@ function ENT:DrawButton(x,y,w,h,num)
 end
 
 function ENT:Draw()
-	
-	self.Entity:DrawModel();
+	if self.hidden then return end
+	//self.Entity:DrawModel();
 	if (LocalPlayer():GetPos():Distance(self.Entity:GetPos()) < self.NoDrawDistance)
-	and (self.Entity:WorldToLocal(LocalPlayer():GetPos())["z"]>2)
-	and (self.Entity == LocalPlayer():GetEyeTrace()["Entity"]) then
+	and (self.Entity:WorldToLocal(LocalPlayer():EyePos())["z"]>1.7) // Fix GetPos() чтобы платформу можно было размещать под углом
+	//and (self.Entity == LocalPlayer():GetEyeTrace()["Entity"]) 
+	then
+		local distance = LocalPlayer():GetPos():Distance(self.Entity:GetPos())
+		local w,h = self.WindowSize["x"]*self.SelfScaled/2,self.WindowSize["y"]*self.SelfScaled/2
+		
+		local frequency, time = 9, RealTime()
+		local red = math.sin( frequency * time ) * 128 + 128
 		cam.Start3D2D(self.Position,self.Ang,1/self.SelfScaled)
-			local w,h = self.WindowSize["x"]*self.SelfScaled/2,self.WindowSize["y"]*self.SelfScaled/2
-			draw.RoundedBox( 0, 0, 0,w,h,Color( 35, 35, 35,200) )
+			local ap = 200
+			
+			if distance > self.FadeDistance then
+				ap = ap - distance
+			end
+			
+			draw.RoundedBox( 0, 0, 0,w,h,Color( 35, 35, 35,ap) )
 			local curpos = self.Entity:WorldToLocal(self.trace["HitPos"])-self.Offset
 			self.X = curpos.x*self.SelfScaled;
 			self.Y = -curpos.y*self.SelfScaled; 
 			//debug
 			//chat.AddText("X = "..tostring(math.floor(self.X)).." Y = " .. tostring(math.floor(self.Y)))
+			
 			local tempc
 			
-			if self.isgranted then  tempc = table.Copy(self.GrantedColor) else
+			if self.isgranted then 
+				tempc = table.Copy(self.GrantedColor) 
+			else
 				tempc = table.Copy(self.LerpedColor)
 				tempc.a = 120
 				if self.iserror then // Панель будет "потухать" типа ошибки
-					local frequency, time = 9, RealTime()
-					local red = math.sin( frequency * time ) * 128 + 128
 					tempc.a = red
 				end
+			end
+			
+			if distance > self.FadeDistance then
+				tempc.a = tempc.a - distance
 			end
 			
 			draw.RoundedBox( 0, 4, 4, w-8, 2, tempc )
@@ -227,21 +249,12 @@ function ENT:Draw()
 			draw.RoundedBox( 0, 4, 6, 2, 30, tempc )
 			draw.RoundedBox( 0, w-6, 6, 2, 30, tempc )
 			
-				cam.Start3D2D(self.Position,self.Ang,self.TextScale)
-					local pass = ""
-					local count = string.len(self.Pass or "")
-					if count != 0 then
-						for i=1,count do
-							draw.DrawText("•", "TextNumbersDotPad", ((w/self.SelfScaled/2)*(1/self.TextScale))-positiondot[count][i],( (6+24)/self.SelfScaled/2 - 2)*(1/self.TextScale), Color(255,255,255), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER	);
-						end
-					end
-				cam.End3D2D()
 			//draw.RoundedBox( 0, x, y, 1, h, self.LerpedColor )
 			//draw.RoundedBox( 0, x+w-1, y, 1, h, self.LerpedColor )
 			//draw.RoundedBox( 0, x+1, y+ h-1, w-2, 1, self.LerpedColor )
 			
 			for k,v in pairs(self.Buttons) do // buttons
-				self:DrawButton(v["x"],v["y"],v["w"],v["t"],v["num"])
+				self:DrawButton(v["x"],v["y"],v["w"],v["t"],v["num"], distance)
 			end
 			/*
 		
@@ -262,6 +275,23 @@ function ENT:Draw()
 			surface.DrawRect(self.X,self.Y,1,1)
 			*/
 		cam.End3D2D()
+		cam.Start3D2D(self.Position,self.Ang,self.TextScale)
+			local count = string.len(self.Pass or "")
+			
+			if count != 0 then
+				local color = Color(255,255,255)
+				if distance > self.FadeDistance then
+					color.a = 150 - distance
+				end
+				
+				if self.iserror then // Панель будет "потухать" типа ошибки
+					color.a = red
+				end
+				for i=1,count do
+					draw.DrawText("•", "TextNumbersDotPad", ((w/self.SelfScaled/2)*(1/self.TextScale))-positiondot[count][i],( (6+24)/self.SelfScaled/2 - 2)*(1/self.TextScale), color, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER );
+				end
+			end
+		cam.End3D2D()
 	end
 end
 
@@ -269,5 +299,4 @@ function ENT:Think()
 	self.trace = LocalPlayer():GetEyeTrace()
 	self.Position = self.Entity:LocalToWorld(self.Offset)
 	self.Ang = self.Entity:LocalToWorldAngles(self.Rotation)
-
 end

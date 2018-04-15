@@ -23,6 +23,9 @@ clr[ "$pp_colour_mulb" ] 		= 0
 
 function ENT:Draw()
 	self:DrawModel()
+	if IsValid(self:GetLock()) then
+		self:GetLock():Draw()
+	end
 end
 
 //This usermessage is only sent to the player actually teleporting, so we should be good
@@ -32,8 +35,6 @@ usermessage.Hook("theater_door_load", function( um )
 	self.TimeToNext = CurTime() + self.DelayTime //Give a slight pause before fading out
 	self.Mode = THEATER_LOAD_FADEDELAY;
 	LocalPlayer().LoadingEntity = self;
-
-
 end )
 
 hook.Add( "RenderScreenspaceEffects", "theater_render_loading", function()

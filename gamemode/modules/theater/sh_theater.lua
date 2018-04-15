@@ -38,7 +38,9 @@ function THEATER:Init( locId, info )
 			o._ThumbInfo = info.ThumbInfo
 			o:SetupThumbnailEntity()
 		end
-
+		if info.DoorEnt then
+			o:SetupDoorEntity( info.DoorEnt )
+		end
 		o._Queue = {}
 		o._QueueCount = 0
 
@@ -275,6 +277,23 @@ if SERVER then
 		end
 
 		self:SyncThumbnail()
+
+	end
+
+	/*
+		DoorLink Entity
+	*/
+	function THEATER:SetupDoorEntity( ent )
+
+		if !IsValid( self._DoorEnt ) then
+
+			if IsValid( ent ) then
+				self._DoorEnt = ent
+			else
+				return
+			end
+
+		end
 
 	end
 
@@ -862,7 +881,6 @@ if SERVER then
 	end
 
 	function THEATER:SetPass( pass, ply )
-	print("Setting pass".. pass.. " by ".. tostring(ply))
 		if !IsValid(ply) then return end
 		
 		--|
@@ -870,10 +888,31 @@ if SERVER then
 		-- Theater must be private and player must be the owner
 		if !self:IsPrivate() or ply != self:GetOwner() then return end
 
+		print("Setting pass".. pass.. "  by ".. tostring(ply))
 		-- Clamp new name to 4 chars
 		self._Pass = string.sub(pass,0,4)
-		print(self._Pass)
-
+		
+		if IsValid(self._DoorEnt) then
+			if IsValid(self._codePanel) then
+				SafeRemoveEntity(self._codePanel)
+			end
+			
+			local ent = ents.Create("theater_lockscreen");
+			
+			ent:Spawn();
+			ent:SetAngles( self._DoorEnt:GetAngles() + Angle(0,90,75) )
+			ent:SetPos( self._DoorEnt:GetPos() + Vector(0,40,40) )
+			
+			ent.ConnectedTheater = self
+			ent.GrantedDoor = {}
+			ent.GrantedDoor[ply:SteamID()] = true //Для овнера сразу дается разрешение
+			
+			//!Удалить панель у овнера
+			
+			self._DoorEnt:SetLocker( ent )
+			ent:SetParentDoor( self._DoorEnt )
+			
+		end
 	end
 	
 	function THEATER:GetPass()

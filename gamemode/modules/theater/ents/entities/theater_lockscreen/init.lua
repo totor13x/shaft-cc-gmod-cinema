@@ -6,22 +6,27 @@ util.AddNetworkString("SendPassword")
 util.AddNetworkString("PassReply")
 
 net.Receive("SendPassword", function(len,ply)
-		a=net.ReadString()
-		e=net.ReadEntity()
-		SendReply(ply,e.ConnectedTheater:GetPass() == a)
-	end)
-
-function SendReply(ply, bool)
+	a=net.ReadString()
+	e=net.ReadEntity()
+	
+	local result = e.ConnectedTheater:GetPass() == a
+	if result then
+		e.GrantedDoor[ply:SteamID()] = true
+	end
+	
 	net.Start("PassReply")
-		net.WriteBool(bool)
+		net.WriteBool(result)
+		net.WriteEntity(e)
 	net.Send(ply)
-end
+end)
 
 function ENT:Initialize()
 	self.Entity:SetModel("models/hunter/plates/plate1x1.mdl");
 	self.Entity:PhysicsInit(SOLID_VPHYSICS);
-	self.Entity:SetMoveType(MOVETYPE_VPHYSICS);
+	self.Entity:SetMoveType(MOVETYPE_NONE);
 	self.Entity:SetSolid(SOLID_VPHYSICS);
+	self:SetCollisionGroup(COLLISION_GROUP_WORLD)
+	self:DrawShadow(false)
 	local phys = self:GetPhysicsObject()
 	if phys:IsValid() then
 		phys:Wake()
@@ -29,8 +34,6 @@ function ENT:Initialize()
 	end
 end
 
-function ENT:Think()
-end
 
 function ENT:SpawnFunction(ply, tr)
 	if (!tr.Hit) then return end
@@ -43,8 +46,4 @@ function ENT:SpawnFunction(ply, tr)
 end
 
 function ENT:PhysicsCollide(data)
-end
-
-function ENT:Think()
-
 end

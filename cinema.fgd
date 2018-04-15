@@ -18,6 +18,7 @@
 	height(float) : "Screen Height" : 360 : "Height of the theater screen in hammer units"
 
 	target(string) : "Thumbnail" : "" : "Targetname of the theater_thumbnail entity used by the theater"
+	door(string) : "Door Link" : "" : "Targetname of the theater_door entity used by the theater"
 ]
 
 @PointClass base(Targetname, Origin, Angles) studioprop( "models/sunabouzu/thumbnail_case.mdl" ) = theater_thumbnail : "Thumbnail entity for theaters to relay data."

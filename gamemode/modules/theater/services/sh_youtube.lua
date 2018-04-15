@@ -3,12 +3,6 @@ local SERVICE = {}
 SERVICE.Name 	= "YouTube"
 SERVICE.IsTimed = true
 
-local API_KEY = DT['youtubeAPIKEY']
-
-local METADATA_URL = "https://www.googleapis.com/youtube/v3/videos?id=%s" ..
-		"&key=" .. API_KEY ..
-		"&part=snippet,contentDetails,status" ..
-		"&videoEmbeddable=true&videoSyndicated=true"
 
 function SERVICE:Match( url )
 	return string.match( url.host, "youtu.?be[.com]?" )
@@ -158,7 +152,12 @@ function SERVICE:GetVideoInfo( data, onSuccess, onFailure )
 		end
 
 	end
+	local API_KEY = DT['youtubeAPIKEY']
 
+	local METADATA_URL = "https://www.googleapis.com/youtube/v3/videos?id=%s" ..
+			"&key=" .. API_KEY ..
+			"&part=snippet,contentDetails,status" ..
+			"&videoEmbeddable=true&videoSyndicated=true"
 	local url = METADATA_URL:format( data )
 	self:Fetch( url, onReceive, onFailure )
 

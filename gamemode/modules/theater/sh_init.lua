@@ -82,6 +82,13 @@ function GetByLocation( locId, setup )
 						info.ThumbEnt = target[1]
 					end
 				end
+				
+				if kv.door then
+					local target = ents.FindByName(kv.door)
+					if target and IsValid(target[1]) then
+						info.DoorEnt = target[1]
+					end
+				end
 
 				info.Flags = fixOldFlags(info)
 

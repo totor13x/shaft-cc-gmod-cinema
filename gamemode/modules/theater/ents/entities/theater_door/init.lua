@@ -1,6 +1,7 @@
 ENT.DoorOpen = Sound("doors/door1_move.wav") //just defaults
 ENT.DoorClose = Sound("doors/door_wood_close1.wav") //just defaults
 
+
 function ENT:Initialize()
 	self:SetMoveType(MOVETYPE_NONE)
 	self:SetSolid(SOLID_VPHYSICS)
@@ -12,11 +13,14 @@ function ENT:Initialize()
 	if IsValid(phys) then
 		phys:SetMaterial("gmod_silent")
 	end
+end
 
-
+function ENT:SetLocker(ent)
+	self:SetLock(ent)
 end
 
 function ENT:Use(activator, caller)
+	if IsValid(self:GetLock()) && !self:GetLock().GrantedDoor[activator:SteamID()] then return end
 	self:TriggerOutput("OnUse", activator)
 
 	if IsValid(activator) && !activator.Teleporting then
@@ -68,7 +72,6 @@ function ENT:GetTeleportEntity()
 	end
 	
 	return self.TeleportEnt
-
 end
 
 function ENT:StartLoading( ply )

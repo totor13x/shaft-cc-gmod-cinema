@@ -113,6 +113,7 @@ function GetTeleportByIndex( iIndex, strMap )
 	return GetTeleportBy( GetLocationByIndex, iIndex, strMap )
 end
 
+
 // returns the index of the player's current location, or 0 if unknown
 function Find( ply )
 	
