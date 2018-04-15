@@ -1,3 +1,5 @@
+
+
 include('shared.lua')
 
 ENT.Rotation = Angle(0,0,0);
@@ -9,13 +11,32 @@ ENT.TextScale = 0.05
 ENT.SelfScaled = 4 //Это для рамок. Чтобы были жирными/тонкими
 
 ENT.LerpedColor = Color(170,20,20)
+ENT.GrantedColor = Color(20,170,20)
+
 ENT.NLerpedColor = Vector(230,230,230)
 ENT.UsedColor = Vector(100,230,120)
 ENT.Pass = ""
+ENT.iserror = false
+ENT.isgranted = false
 
+ENT.CooldownTime = 5
 
 surface.CreateFont( "TextNumbersKeyPad", { size = 4*(1/ENT.TextScale), weight = 100 } )
 surface.CreateFont( "TextNumbersDotPad", { size = 8*(1/ENT.TextScale), weight = 100 } )
+
+net.Receive("PassReply",function(len)
+	bo = net.ReadBool()
+	ent = LocalPlayer():GetEyeTrace()["Entity"]
+	print(bo)
+	if not(bo) then
+		ent.iserror = true
+		timer.Simple(ent.CooldownTime,function() ent.iserror = false end)
+	else
+		ent.isgranted = true
+		timer.Simple(ent.CooldownTime,function() ent.isgranted = false end)
+	end
+	
+end)
 
 ENT.Buttons = {	b1 = { x = 2,y = 18+2,w = 16, t = 16, num = 1, customLerpColor=Color(255,255,255),colblock = Vector(),  colborder = Vector(), alphaborders = 0, alphablock = 0, FakeActivated = false, isborder = false},
 				b2 = {x = 16+1+2,y = 18+2, w = 16, t = 16, num = 2, customLerpColor=Color(255,255,255), colblock = Vector(),  colborder = Vector(), alphaborders = 0, alphablock = 0, FakeActivated = false, isborder = false},
@@ -59,6 +80,7 @@ local positiondot = {
 		}
 	}
 function ENT:DrawButton(x,y,w,h,num)
+	if self.iserror or self.isgranted then return end
 	//surface.SetDrawColor(Color(50,50,50))
 	//surface.DrawRect(x,y,w,t)
 	/*
@@ -119,6 +141,16 @@ function ENT:DrawButton(x,y,w,h,num)
 		if LocalPlayer():KeyDown(IN_USE) and (not(pressed)) then
 			pressed = true
 			data.alphablock = 255
+			if string.len(self.Pass) == 3 then
+				self.Pass = self.Pass .. tostring(num)
+				net.Start("SendPassword")
+					net.WriteString(self.Pass)
+					net.WriteEntity(self)
+				net.SendToServer(LocalPlayer())
+				self.Pass = ""
+			else
+				self.Pass = self.Pass .. tostring(num)
+			end
 		else
 			if not(LocalPlayer():KeyDown(IN_USE)) and pressed then
 				pressed = false
@@ -178,14 +210,16 @@ function ENT:Draw()
 			self.Y = -curpos.y*self.SelfScaled; 
 			//debug
 			//chat.AddText("X = "..tostring(math.floor(self.X)).." Y = " .. tostring(math.floor(self.Y)))
+			local tempc
 			
-			local tempc = table.Copy(self.LerpedColor)
-			tempc.a = 120
-			local iserror = false
-			if iserror then // Панель будет "потухать" типа ошибки
-				local frequency, time = 9, RealTime()
-				local red = math.sin( frequency * time ) * 128 + 128
-				tempc.a = red
+			if self.isgranted then  tempc = table.Copy(self.GrantedColor) else
+				tempc = table.Copy(self.LerpedColor)
+				tempc.a = 120
+				if self.iserror then // Панель будет "потухать" типа ошибки
+					local frequency, time = 9, RealTime()
+					local red = math.sin( frequency * time ) * 128 + 128
+					tempc.a = red
+				end
 			end
 			
 			draw.RoundedBox( 0, 4, 4, w-8, 2, tempc )
@@ -195,7 +229,7 @@ function ENT:Draw()
 			
 				cam.Start3D2D(self.Position,self.Ang,self.TextScale)
 					local pass = ""
-					local count = string.len(pass or "")
+					local count = string.len(self.Pass or "")
 					if count != 0 then
 						for i=1,count do
 							draw.DrawText("•", "TextNumbersDotPad", ((w/self.SelfScaled/2)*(1/self.TextScale))-positiondot[count][i],( (6+24)/self.SelfScaled/2 - 2)*(1/self.TextScale), Color(255,255,255), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER	);

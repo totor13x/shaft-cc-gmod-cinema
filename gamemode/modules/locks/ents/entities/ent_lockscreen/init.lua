@@ -3,11 +3,19 @@ AddCSLuaFile("shared.lua")
 include('shared.lua')
 
 util.AddNetworkString("SendPassword")
-/*
+util.AddNetworkString("PassReply")
+
 net.Receive("SendPassword", function(len,ply)
-		SendReply(ply:GetTheater():GetPass() == net.ReadString()
-	end
-end)*/
+		a=net.ReadString()
+		e=net.ReadEntity()
+		SendReply(ply,e.ConnectedTheater:GetPass() == a)
+	end)
+
+function SendReply(ply, bool)
+	net.Start("PassReply")
+		net.WriteBool(bool)
+	net.Send(ply)
+end
 
 function ENT:Initialize()
 	self.Entity:SetModel("models/hunter/plates/plate1x1.mdl");
