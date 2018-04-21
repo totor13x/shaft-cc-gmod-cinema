@@ -66,6 +66,8 @@ function THEATER:Init( locId, info )
 
 end
 
+
+
 function THEATER:Name()
 	return self._Name
 end
@@ -918,5 +920,7 @@ if SERVER then
 	function THEATER:GetPass()
 		return self._Pass
 	end
+	
+	
 
 end

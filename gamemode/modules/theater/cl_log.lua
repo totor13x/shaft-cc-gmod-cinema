@@ -1,5 +1,6 @@
 module( "theater", package.seeall )
 
+
 function Query( command )
 	
 	local updated = sql.Query( "SELECT type FROM cinema_requests LIMIT 1" )
@@ -45,10 +46,24 @@ function RemoveRequestById( id )
 	return Query( "DELETE FROM cinema_requests WHERE id=" .. id )
 end
 
+local history_cached
+
+net.Receive("update_history", function()
+	history_cached = net.ReadTable()
+end)
+
+
 function GetRequestHistory()
-
-	local results = Query( "SELECT * FROM cinema_requests" ) or {}
-
+	local results
+	if not(LocalPlayer():GetTheater():IsPrivate()) then
+		print("Getting history ...")
+		net.Start("ReqHistory")
+		net.SendToServer()
+		results = /*Query( "SELECT * FROM cinema_requests" )*/history_cached or {}
+	else
+		results = Query( "SELECT * FROM cinema_requests" ) or {}
+	end
+	
 	if #results > 0 then
 		results.duration = tonumber(results.duration)
 		results.count = tonumber(results.count)
@@ -56,6 +71,7 @@ function GetRequestHistory()
 	end
 
 	return results
+	
 
 end
 

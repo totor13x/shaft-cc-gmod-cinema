@@ -21,18 +21,11 @@ if #player.GetAll() > 0 then
 	net.WriteTable(DT) 
 	net.Broadcast()
 end
-
+/*
 for i,v in pairs(ents.FindByClass("ent_lockscreen")) do 
 	v:Remove()
 end
-
-for i,v in pairs(player.GetAll()) do
-	local po = v:GetEyeTrace().StartPos
-	local ent = ents.Create("ent_lockscreen");
-	ent:SetPos(po);
-	ent:Spawn();
-	ent:Activate();
-end
+*/
 
 local char, gsub, tonumber = string.char, string.gsub, tonumber
 local function _(hex) return char(tonumber(hex, 16)) end

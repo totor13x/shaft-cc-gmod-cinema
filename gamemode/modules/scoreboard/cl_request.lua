@@ -143,14 +143,17 @@ function HISTORY:Init()
 	end
 	self.Options:AddItem(ClearButton)
 
+	theater.GetRequestHistory()
+	timer.Simple(1,function()
 	for _, request in pairs( theater.GetRequestHistory() ) do
 		self:AddVideo( request )
+		PrintTable(request)
 	end
 
 	self.VideoList:SortVideos( function( a, b ) 
 		return a.lastRequest > b.lastRequest
 	end )
-
+	end)
 end
 
 function HISTORY:AddVideo( vid )
@@ -231,10 +234,6 @@ function VIDEO:Init()
 	self.Duration:SetFont( "ScoreboardVidDuration" )
 	self.Duration:SetColor( Color( 255, 255, 255 ) )
 
-	self.Requests = Label( "1 request(s)", self )
-	self.Requests:SetFont( "ScoreboardVidDuration" )
-	self.Requests:SetColor( Color( 255, 255, 255 ) )
-
 	self.RequestVideo = vgui.Create( "DImageButton", self )
 	self.RequestVideo:SetSize( 16, 16 )
 	self.RequestVideo:SetImage( "theater/play.png" )
@@ -249,25 +248,32 @@ function VIDEO:Init()
 			self.RequestVideo:SetAlpha( 25 )
 		end
 	end
-
-	self.DeleteVideo = vgui.Create( "DImageButton", self )
-	self.DeleteVideo:SetSize( 16, 16 )
-	self.DeleteVideo:SetImage( "theater/trashbin.png" )
-	self.DeleteVideo:SetTooltip( T'Request_DeleteTooltip' )
-	self.DeleteVideo.DoClick = function()
-		theater.RemoveRequestById( self.Video.id )
-
-		-- Lovely DPanelList
-		pcall( function(v)
-			self:GetParent():GetParent():GetParent():RemoveVideo( v )
-		end, self.Video )
+	
+	if LocalPlayer():GetTheater():IsPrivate() then
 		
-	end
-	self.DeleteVideo.Think = function()
-		if IsMouseOver( self.DeleteVideo ) then
-			self.DeleteVideo:SetAlpha( 255 )
-		else
-			self.DeleteVideo:SetAlpha( 25 )
+		self.Requests = Label( "1 request(s)", self )
+		self.Requests:SetFont( "ScoreboardVidDuration" )
+		self.Requests:SetColor( Color( 255, 255, 255 ) )
+		
+		self.DeleteVideo = vgui.Create( "DImageButton", self )
+		self.DeleteVideo:SetSize( 16, 16 )
+		self.DeleteVideo:SetImage( "theater/trashbin.png" )
+		self.DeleteVideo:SetTooltip( T'Request_DeleteTooltip' )
+		self.DeleteVideo.DoClick = function()
+			theater.RemoveRequestById( self.Video.id )
+	
+			-- Lovely DPanelList
+			pcall( function(v)
+				self:GetParent():GetParent():GetParent():RemoveVideo( v )
+			end, self.Video )
+			
+		end
+		self.DeleteVideo.Think = function()
+			if IsMouseOver( self.DeleteVideo ) then
+				self.DeleteVideo:SetAlpha( 255 )
+			else
+				self.DeleteVideo:SetAlpha( 25 )
+			end
 		end
 	end
 
@@ -286,7 +292,7 @@ function VIDEO:SetVideo( vid )
 		self.Duration:SetText( "" )
 	end
 
-	self.Requests:SetText( T('Request_PlayCount', self.Video.count) )
+	if LocalPlayer():GetTheater():IsPrivate() then self.Requests:SetText( T('Request_PlayCount', self.Video.count) ) end
 
 end
 
@@ -301,19 +307,24 @@ function VIDEO:PerformLayout()
 
 	self.Duration:SizeToContents()
 	self.Duration:AlignTop( self.Title:GetTall() - 4 )
-	self.Duration:AlignLeft( self.Padding )
+	self.Duration:AlignLeft( self.Padding )	
 
+	if LocalPlayer():GetTheater():IsPrivate() then
+		self.RequestVideo:Center()
+		self.RequestVideo:AlignRight( 36 )
+	
+		self.DeleteVideo:Center()
+		self.DeleteVideo:AlignRight( 10 )
+		
+		
 	self.Requests:SizeToContents()
 	self.Requests:SetContentAlignment( 6 )
 	self.Requests:AlignTop( self.Title:GetTall() - 4 )
 	self.Requests:AlignRight( 64 )
-
-	self.RequestVideo:Center()
-	self.RequestVideo:AlignRight( 36 )
-
-	self.DeleteVideo:Center()
-	self.DeleteVideo:AlignRight( 10 )
-	
+	else
+		self.RequestVideo:Center()
+		self.RequestVideo:AlignRight( 20 )
+	end
 end
 
 function VIDEO:Paint( w, h )
