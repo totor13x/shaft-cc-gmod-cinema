@@ -110,7 +110,9 @@ if IsValid(asd9) then asd9:Remove() end
 if IsValid(button) then button:Remove() end
 
 gui.EnableScreenClicker( false )
-
+concommand.Add("asdAsd", function()
+end)
+/*
 concommand.Add("asdAsd", function()
 
 

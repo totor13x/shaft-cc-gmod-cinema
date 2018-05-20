@@ -48,7 +48,6 @@ function GM:OnPlayerChat( player, strText, bTeamOnly, bPlayerIsDead )
 	return true
 	
 end
-
 --[[---------------------------------------------------------
    Name: gamemode:PlayerNoClip( player, bool )
    Desc: Player pressed the noclip key, return true if

@@ -2,6 +2,7 @@ local SERVICE = {}
 
 SERVICE.Name 		= "Base"
 SERVICE.IsTimed 	= true
+SERVICE.isSerials 	= false
 
 function SERVICE:GetName()
 	return self.Name

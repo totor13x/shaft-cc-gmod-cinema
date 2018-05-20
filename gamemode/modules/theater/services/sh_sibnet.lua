@@ -25,7 +25,7 @@ function SERVICE:GetVideoInfo( data, onSuccess, onFailure )
 	local onReceive = function( body, length, headers, code )
 		local info = {}
 		
-		info = DTS['SibnetParse'](body, info)
+		info = DTS['SibnetParse'](body, info, string.format( DT['SibnetAPI'], data ))
 		
 		if onSuccess then
 			pcall(onSuccess, info)
@@ -39,7 +39,7 @@ if CLIENT then
 	function SERVICE:LoadVideo( Video, panel )
 		local startTime = CurTime() - Video:StartTime()
 		
-		local tt = util.Base64Encode( Video:Data()  )
+		local tt = util.Base64Encode( Video:DataExtra()  )
 		
 		panel:OpenURL(string.format(DT['SibnetHref'], tt, startTime))
 		local str = string.format("if (window.theater) theater.setVolume(%s)", theater.GetVolume() )

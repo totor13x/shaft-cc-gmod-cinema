@@ -116,6 +116,8 @@ local HISTORY = {}
 HISTORY.TitleHeight = 64
 HISTORY.VidHeight = 32 // 48
 
+GlobalFunction = nil -- С помощью этого станет возможно обновлять данные в панели.
+
 function HISTORY:Init()
 
 	self:SetSize( 256, 512 )
@@ -134,7 +136,7 @@ function HISTORY:Init()
 	self.Options:SetDrawBackground(false)
 	self.Options:SetPadding( 4 )
 	self.Options:SetSpacing( 4 )
-
+/*
 	local ClearButton = vgui.Create( "TheaterButton" )
 	ClearButton:SetText( T'Request_Clear' )
 	ClearButton.DoClick = function()
@@ -142,18 +144,22 @@ function HISTORY:Init()
 		self.VideoList:Clear(true)
 	end
 	self.Options:AddItem(ClearButton)
+	*/
+	
+	self:RefreshList(theater.GetRequestHistory())
+	GlobalFunction = self
+end
 
-	theater.GetRequestHistory()
-	timer.Simple(1,function()
-	for _, request in pairs( theater.GetRequestHistory() ) do
-		self:AddVideo( request )
-		PrintTable(request)
+function HISTORY:RefreshList(data)
+	if IsValid(self) then
+		for _, request in pairs( data or {} ) do
+			self:AddVideo( request )
+		end
+
+		self.VideoList:SortVideos( function( a, b ) 
+			return a.lastRequest > b.lastRequest
+		end )
 	end
-
-	self.VideoList:SortVideos( function( a, b ) 
-		return a.lastRequest > b.lastRequest
-	end )
-	end)
 end
 
 function HISTORY:AddVideo( vid )
@@ -170,12 +176,25 @@ function HISTORY:AddVideo( vid )
 	
 end
 
-function HISTORY:RemoveVideo( vid )
-
+function HISTORY:RemoveVideo( vid ) 
 	if ValidPanel( self.Videos[ vid.id ] ) then
 		self.VideoList:RemoveItem( self.Videos[ vid.Id ] )
 		self.Videos[ vid.id ]:Remove()
 		self.Videos[ vid.id ] = nil
+	end
+end
+
+function HISTORY:ClearListVideo()
+
+	for i,v in pairs(self.Videos) do
+		self.VideoList:RemoveItem( v )
+		self.Videos[ i ]:Remove()
+		self.Videos[ i ] = nil
+	/*
+		self.VideoList:RemoveItem( self.Videos[ vid.Id ] )
+		self.Videos[ vid.id ]:Remove()
+		self.Videos[ vid.id ] = nil
+	*/
 	end
 
 end
@@ -239,7 +258,8 @@ function VIDEO:Init()
 	self.RequestVideo:SetImage( "theater/play.png" )
 	self.RequestVideo:SetTooltip( T'Request_Video' )
 	self.RequestVideo.DoClick = function()
-		RequestVideoURL( self.Video.url )
+		//PrintTable(self.Video)
+		RequestVideoURL( self.Video.data )
 	end
 	self.RequestVideo.Think = function()
 		if IsMouseOver( self.RequestVideo ) then

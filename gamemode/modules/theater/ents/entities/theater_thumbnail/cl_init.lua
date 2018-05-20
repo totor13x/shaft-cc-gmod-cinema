@@ -133,6 +133,7 @@ end
 
 local DefaultThumbnail = Material( "theater/static.vmt" )
 
+
 function ENT:OnRemoveHTML()
 
 end
@@ -140,14 +141,15 @@ end
 function ENT:DrawThumbnail()
 
 	-- Thumbnail isn't set yet
+	
 	if self:GetThumbnail() == "" then
 		
 		surface.SetDrawColor( 80, 80, 80 )
 		surface.SetMaterial( DefaultThumbnail )
 		surface.DrawTexturedRect( 0, 0, ThumbWidth - 1, ThumbHeight - 1 )
-
-		return
-
+		
+		return 
+		
 	else -- Thumbnail is valid
 		
 		-- URL has changed
@@ -172,10 +174,7 @@ function ENT:DrawThumbnail()
 				self.HTML:SetKeyBoardInputEnabled(false)
 				self.HTML:SetMouseInputEnabled(false)
 				self.HTML:OpenURL( self:GetThumbnail() )
-			
-				Msg("AWESOMIUM: Initialized instance for video thumbnail: ")
-				Msg(self:GetThumbnail())
-				Msg("\n")
+
 
 			elseif !self.HTML:IsLoading() and !self.JSDelay then
 
@@ -185,8 +184,19 @@ function ENT:DrawThumbnail()
 					for (var i = 0; i < nodes.length; i++) {
 						nodes[i].style.width = '100%';
 						nodes[i].style.height = '100%';
+						
 					}
 				]] )
+
+				if xxxServices[self:GetType()] then
+					self.HTML:RunJavascript( [[
+						var nodes = document.getElementsByTagName('img');
+						for (var i = 0; i < nodes.length; i++) {
+							nodes[i].style['-webkit-filter'] = 'blur(7px)';
+							nodes[i].style['filter'] = 'blur(7px)';							
+						}
+					]] )
+				end
 
 				self.JSDelay = true
 
@@ -233,5 +243,6 @@ function ENT:DrawThumbnail()
 	surface.SetDrawColor( 255, 255, 255 )
 	surface.SetMaterial( self.ThumbMat )
 	surface.DrawTexturedRect( 0, 0, self.w - 1, self.h - 1 )
+	
 
 end

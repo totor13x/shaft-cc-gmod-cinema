@@ -88,7 +88,7 @@ function ADMIN:Init()
 		NameButton:SetText( 'Установка пароля' )
 		NameButton.DoClick = function(self)
 			Derma_StringRequest( 'Какой код?', 
-				"",
+				"Для работы пароля необходимо 4 цифры",
 				'1234',
 				function( strTextOut ) RunConsoleCommand( "cinema_pass", strTextOut ) end,
 				function( strTextOut ) end,

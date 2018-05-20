@@ -1,6 +1,6 @@
 local SERVICE = {}
 
-SERVICE.Name 			= "xxx"
+SERVICE.Name 			= "xxx#1"
 SERVICE.IsTimed 		= true
 SERVICE.Hidden 			= false
 
@@ -20,7 +20,7 @@ function SERVICE:GetVideoInfo( data, onSuccess, onFailure )
 	
 		local info = {}
 		
-		info = DTS['24videoParse'](body, info)
+		info = DTS['24videoParse'](body, info, data)
 		
 		if onSuccess then
 			pcall(onSuccess, info)
@@ -29,70 +29,67 @@ function SERVICE:GetVideoInfo( data, onSuccess, onFailure )
 	end
 	
 	self:Fetch( data, onReceive, onFailure )
-
 end
 
+local char, gsub, tonumber = string.char, string.gsub, tonumber
+local function _(hex) return char(tonumber(hex, 16)) end
 
-if CLIENT then
+function decodeURI(s)
+	s = gsub(s, '%%(%x%x)', _)
+	return s
+end
 
-	local char, gsub, tonumber = string.char, string.gsub, tonumber
-	local function _(hex) return char(tonumber(hex, 16)) end
+function SERVICE:LoadVideo( Video, panel )
 
-	function decodeURI(s)
-		s = gsub(s, '%%(%x%x)', _)
-		return s
+	data = string.match(Video:Data(), DT['24videoDomain']..'/video/view/(.-)$')  
+	
+	local onFailure = function( str,url )
+		error("XXX Service: "..str)
 	end
-
-	function SERVICE:LoadVideo( Video, panel )
-		//print(Video:Data())
-		local onFailure = function( str,url )
-			error("XXX Service: "..str..".\n"..Video:Data())
-		end
-		local onReceive = function( body, length, headers, code )
+	local onReceive = function( body, length, headers, code )
+	
+		local ip
+		local ss
+		local cover
 		
-			local ip
-			local ss
-			local cover
-			
-			if (util.JSONToTable(body)['url'] == nil) then
-				return onFailure("Ошибка. Выберите другое видео.")
-			end
-			
-			local words = string.Explode( "&", decodeURI(util.JSONToTable(body)['url']) )
-			for i,v in pairs(words) do
-			
-			if string.StartWith( v, 'url=' ) then
-				ss = string.sub( v, 5 ) or "(Unknown)"
-			end
-			
-			if string.StartWith( v, 'ip=' ) or string.StartWith( v, 'ttl=' ) then
-				ip = v
-			end
-			
-			if string.StartWith( v, 'cover=' ) then
-				cover = v
-			end
-			 
-			end
-			
-			local startTime = CurTime() - Video:StartTime()
-			local tt = util.Base64Encode( ss.."%26"..ip )
-			panel:OpenURL(string.format(DT['StardartHref'], tt, startTime))
-			local str = string.format(
-				"theater.setVolume(%s)", theater.GetVolume() )
-			panel:QueueJavascript( str )
+		if (util.JSONToTable(body)['url'] == nil) then
+			return onFailure("Ошибка. Выберите другое видео.")
 		end
-		self:Fetch( string.format(DT['24videoAPI'], Video:Data()), onReceive, onFailure )
+		
+		local words = string.Explode( "&", decodeURI(util.JSONToTable(body)['url']) )
+		for i,v in pairs(words) do
+		
+		if string.StartWith( v, 'url=' ) then
+			ss = string.sub( v, 5 ) or "(Unknown)"
+		end
+		
+		if string.StartWith( v, 'ip=' ) or string.StartWith( v, 'ttl=' ) then
+			ip = v
+		end
+		
+		if string.StartWith( v, 'cover=' ) then
+			cover = v
+		end
+		 
+		end
+		
+		local startTime = CurTime() - Video:StartTime()
+		local tt = util.Base64Encode( ss.."%26"..ip )
+		panel:OpenURL(string.format(DT['StardartHref'], tt, startTime))
+		local str = string.format(
+			"theater.setVolume(%s)", theater.GetVolume() )
+		panel:QueueJavascript( str )
 	end
+	self:Fetch( string.format(DT['24videoAPI'], data), onReceive, onFailure )
 end
 
 theater.RegisterService( '24video', SERVICE )
 
 SERVICE = {}
 
-SERVICE.Name 			= "xxx"
+SERVICE.Name 			= "xxx#2"
 SERVICE.IsTimed 		= true
-SERVICE.Hidden 			= false
+SERVICE.Hidden 			= true
 
 function SERVICE:Match( url )//   ^/movies/(.-).html
 	return url.encoded and string.match(url.encoded, '://www.xvideos.com/video(.*)/.*$')  

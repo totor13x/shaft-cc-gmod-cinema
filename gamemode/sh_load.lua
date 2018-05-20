@@ -16,7 +16,7 @@ local function GetFileList( strDirectory, strGamemode )
 		table.insert( files, v )
 		
 	end
-	
+	 
 	return files
 	
 end

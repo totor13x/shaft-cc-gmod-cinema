@@ -115,13 +115,14 @@ function THEATER:SetVideo( Video, PreventDefault )
 	if !Video then return end
 
 	self._Video = Video
-
+	
 	if SERVER then
 
 		self._Video._VideoStart = (CurTime() - Video:StartTime()) + 1
 
 		if IsValid( self._ThumbEnt ) then
 			self._ThumbEnt:SetTitle( Video:Title() )
+			self._ThumbEnt:SetType( Video:Type() )
 			self._ThumbEnt:SetThumbnail( Video:Thumbnail() )
 		end
 
@@ -152,6 +153,10 @@ end
 
 function THEATER:VideoData()
 	return self._Video and self._Video:Data() or ""
+end
+
+function THEATER:VideoDataExtra()
+	return self._Video and self._Video:DataExtra() or ""
 end
 
 function THEATER:VideoCurrentTime( clean )
@@ -562,6 +567,7 @@ if SERVER then
 
 				net.WriteString( self:VideoType() )
 				net.WriteString( self:VideoData() )
+				net.WriteString( self:VideoDataExtra() )
 				net.WriteString( self:VideoTitle() )
 				net.WriteString( self:VideoOwnerName() )
 				net.WriteString( self:VideoOwnerSteamID() )
@@ -792,6 +798,7 @@ if SERVER then
 		-- Owner leaving private theater
 		if self:IsPrivate() and ply == self:GetOwner() then
 			self:ResetOwner()
+			self:ClearPass()
 			self:AnnounceToPlayer( ply, 'Theater_LostOwnership' )
 		end
 
@@ -807,7 +814,6 @@ if SERVER then
 				self:Reset()
 			end
 		end
-
 	end
 
 	function THEATER:AnnounceToPlayers( tbl )
@@ -885,18 +891,17 @@ if SERVER then
 	function THEATER:SetPass( pass, ply )
 		if !IsValid(ply) then return end
 		
-		--|
-		
 		-- Theater must be private and player must be the owner
 		if !self:IsPrivate() or ply != self:GetOwner() then return end
-
-		print("Setting pass".. pass.. "  by ".. tostring(ply))
-		-- Clamp new name to 4 chars
-		self._Pass = string.sub(pass,0,4)
 		
+		pass = string.sub(pass,0,4)
+		if !tonumber(pass) then return end
+		if string.len(pass) != 4 then return end
+		
+		//print(tonumber(self._Pass))
 		if IsValid(self._DoorEnt) then
-			if IsValid(self._codePanel) then
-				SafeRemoveEntity(self._codePanel)
+			if IsValid(self._DoorEnt:GetLock()) then
+				SafeRemoveEntity(self._DoorEnt:GetLock())
 			end
 			
 			local ent = ents.Create("theater_lockscreen");
@@ -905,13 +910,14 @@ if SERVER then
 			ent:SetAngles( self._DoorEnt:GetAngles() + Angle(0,90,75) )
 			ent:SetPos( self._DoorEnt:GetPos() + Vector(0,40,40) )
 			
+			self._Pass = pass
 			ent.ConnectedTheater = self
 			ent.GrantedDoor = {}
 			ent.GrantedDoor[ply:SteamID()] = true //Для овнера сразу дается разрешение
 			
+			self:AnnounceToPlayer( ply, 'Вы поставили пароль '..pass )
 			//!Удалить панель у овнера
-			
-			self._DoorEnt:SetLocker( ent )
+			self._DoorEnt:SetLock( ent )
 			ent:SetParentDoor( self._DoorEnt )
 			
 		end
@@ -919,6 +925,13 @@ if SERVER then
 	
 	function THEATER:GetPass()
 		return self._Pass
+	end
+	
+	function THEATER:ClearPass()
+		self._Pass = nil
+		if IsValid(self._DoorEnt:GetLock()) then
+			SafeRemoveEntity(self._DoorEnt:GetLock())
+		end
 	end
 	
 	

@@ -255,6 +255,7 @@ function ReceiveVideo()
 	local info = {}
 	info.Type = net.ReadString()
 	info.Data = net.ReadString()
+	info.DataExtra = net.ReadString()
 	info.Title = net.ReadString()
 	info.OwnerName = net.ReadString()
 	info.OwnerSteamID = net.ReadString()

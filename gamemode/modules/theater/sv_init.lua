@@ -80,7 +80,7 @@ function RequestTheaterInfo( ply, force )
 		if !Theater:IsReplicated() and Theater != ply:GetTheater() then
 			continue
 		end
-
+		
 		th = {
 			Location = Theater:GetLocation(),
 			Name = Theater:Name(),
@@ -89,6 +89,7 @@ function RequestTheaterInfo( ply, force )
 			Flags = Theater:GetFlags(),
 			Type = Theater:VideoType(),
 			Data = Theater:VideoData(),
+			DataExtra = Theater:VideoDataExtra(),
 			Title = Theater:VideoTitle(),
 			Duration = Theater:VideoDuration(),
 			StartTime = Theater:VideoStartTime()

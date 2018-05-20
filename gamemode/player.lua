@@ -29,7 +29,9 @@ end
 		 for the player to say. Return an empty string if the
 		 player should say nothing.
 -----------------------------------------------------------]]
+
 function GM:PlayerSay( player, text, teamonly )
+
 	return text
 end
 
@@ -111,7 +113,6 @@ hook.Add("PlayerSpawn", "DeathrunSetPlayerModels", function( pl )
 		pltable = playermodels
 	end
 	local mdl = table.Random( pltable )
-	
 	pl:SetModel( mdl )
 	local getpos = pl:GetPos()
 	if !pl.LoadPS then
@@ -138,7 +139,7 @@ function GM:PlayerSpawn( pl )
 
 	-- Stop observer mode
 	pl:UnSpectate()
-
+	
 	player_manager.SetPlayerClass( pl, "player_lobby" )
 	player_manager.OnPlayerSpawn( pl )
 	//player_manager.RunClass( pl, "Spawn" )
@@ -237,7 +238,7 @@ function GM:PlayerCanSeePlayersChat( strText, bTeamOnly, pListener, pSpeaker )
 	end
 
 	-- Local chat functions as global chat in Cinema
-	if bTeamOnly then
+	if !bTeamOnly then
 		return true
 	end
 	
@@ -291,7 +292,7 @@ function GM:AllowPlayerPickup( ply, object )
 	return true
 end
 
-
+/*
 hook.Remove("PlayerButtonUp", "GetUpSnowball")
 hook.Add( "PlayerButtonUp", "GetUpSnowball", function( ply, but )
 if but == KEY_E then
@@ -310,6 +311,7 @@ if but == KEY_E then
 	end
 	end
 end )
+*/
 
 local plyMeta = FindMetaTable("Player")
 function plyMeta:InitTypeM()

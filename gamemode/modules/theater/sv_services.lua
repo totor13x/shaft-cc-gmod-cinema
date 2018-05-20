@@ -2,7 +2,7 @@ DT = {}
 DTS = {}
 DT['API_KEY_VK'] = '4f515d0bf72ecb3aa6a10345e564ab2a22f6d6b5b5be5b59766abb5e9613690a0611dbe18a01cd258d7ce' // Api ключ от VK
 DT['VKHref'] = 'http://api.shaft.im/lidi/cinema/vk/video.php?url=%s&time=%s' // Хз, не помню что это за файл. Похоже флешплеер.
-DT['VKAPI'] = "https://api.vk.com/method/video.get?videos=%s&access_token=%s" // Ссылка на необходимое API VK
+DT['VKAPI'] = "https://api.vk.com/method/video.get?videos=%s&access_token=%s&v=5.74" // Ссылка на необходимое API VK
 DT['StardartHref'] = 'https://shaft.im/apps/cinema/videoplayer.php?url=%s&time=%s' //Стандартная маска-ссылка на плеер
 DT['SibnetAPI'] = "http://video.sibnet.ru/shell.php?videoid=%s" //Данные со Sibnet
 DT['SibnetHref'] = 'https://shaft.im/apps/cinema/videoplayer.sibnet.php?url=%s&time=%s' //Специальная маска-ссылка на плеер для sibnet
@@ -69,7 +69,8 @@ DTS['KaduParse'] = function(body, info)
 	info.title = string.gsub( info.title, '+', ' ' )
 	return info
 end
-DTS['SibnetParse'] = function(body, info)
+
+DTS['SibnetParse'] = function(body, info, originalurl)
 
 	local _,a = string.find(body,[[og:image" content="]],1, true)
 	body = string.sub(body,a+1)
@@ -86,9 +87,12 @@ DTS['SibnetParse'] = function(body, info)
 	local _,a = string.find(body,[[player.src([{src: "]],1, true)
 	body = string.sub(body,a+1)
 	a,b = string.find(body,[[",]],1, true)
-	info.data = (string.sub(body,0,a-1))
+	info.dataextra = (string.sub(body,0,a-1))
 	body = string.sub(body,b+1)
 	
+	info.data = originalurl
+		
+		
 	local _,a = string.find(body,[[videoname=]],1, true)
 	body = string.sub(body,a+1)
 	a,b = string.find(body,[[",]],1, true)
@@ -98,7 +102,35 @@ DTS['SibnetParse'] = function(body, info)
 	return info
 end
 
-DTS['24videoParse'] = function(body, info)
+DTS['StormoParse'] = function(body, info)
+
+	local _,a = string.find(body,[[og:image" content="]],1, true)
+	body = string.sub(body,a+1)
+	a,b = string.find(body,[["]],1, true)
+	info.thumbnail = (string.sub(body,0,a-1))
+	body = string.sub(body,b+1)
+	
+	local _,a = string.find(body,[[video:duration" content="]],1, true)
+	body = string.sub(body,a+1)
+	a,b = string.find(body,[["]],1, true)
+	info.duration = (string.sub(body,0,a-1))
+	body = string.sub(body,b+1)
+			
+	local _,a = string.find(body,[[file: ']],1, true)
+	body = string.sub(body,a+1)
+	a,b = string.find(body,[[',]],1, true)
+	info.data = (string.sub(body,0,a-1))
+	body = string.sub(body,b+1)
+	
+	local _,a = string.find(body,[[class="title">]],1, true)
+	body = string.sub(body,a+1)
+	a,b = string.find(body,[[</div]],1, true)
+	info.title = DTS.DecodeURI((string.sub(body,0,a-1)))
+	body = string.sub(body,b+1)
+	
+	return info
+end
+DTS['24videoParse'] = function(body, info, url)
 
 	local _,a = string.find(body,[[<meta property="og:title" content="]],1, true)
 	body = string.sub(body,a+1)
@@ -121,7 +153,10 @@ DTS['24videoParse'] = function(body, info)
 	local _,a = string.find(body,[[<input type="hidden" name="movie_id" value="]],1, true)
 	body = string.sub(body,a+1)
 	a,b = string.find(body,[["]],1, true)
-	info.data = (string.sub(body,0,a-1))
+	//info.data = (string.sub(body,0,a-1))
+	
+	info.data = url
+	
 	return info
 end
 
@@ -153,7 +188,7 @@ DTS['XVideosParse'] = function(body, info)
 	return info
 end
 
-DTS['ZonaParse'] = function(body, info)
+DTS['ZonaParse'] = function(body, info, url)
 
 	local _,a = string.find(body,[[<meta itemprop="image" content="]],1, true)
 	body = string.sub(body,a+1)
@@ -170,7 +205,7 @@ DTS['ZonaParse'] = function(body, info)
 	_,a = string.find(body,[[class="entity-player" data-id="]],1, true)
 	body = string.sub(body,a+1)
 	a,b = string.find(body,[["]],1, true)
-	info.data = DT['HTTP_AJAX_ZONA']..(string.sub(body,0,a-1))
+	info.dataextra = DT['HTTP_AJAX_ZONA']..(string.sub(body,0,a-1))
 	body = string.sub(body,b+1)
 	
 	
@@ -178,6 +213,8 @@ DTS['ZonaParse'] = function(body, info)
 	body = string.sub(body,a+1)
 	a,b = string.find(body,[[" /]],1, true)
 	info.title = (string.sub(body,0,a-1))
+		
+	info.data = url
 	
 	return info
 end

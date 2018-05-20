@@ -15,10 +15,6 @@ function ENT:Initialize()
 	end
 end
 
-function ENT:SetLocker(ent)
-	self:SetLock(ent)
-end
-
 function ENT:Use(activator, caller)
 	if IsValid(self:GetLock()) && !self:GetLock().GrantedDoor[activator:SteamID()] then return end
 	self:TriggerOutput("OnUse", activator)

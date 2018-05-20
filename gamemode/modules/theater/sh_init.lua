@@ -28,6 +28,24 @@ local function fixOldFlags(theaterInfo)
 	end
 end
 
+-- Initialize the database table
+
+-- sql.Query("DROP TABLE IF EXISTS cinema_history_shaft") -- Для удаления таблицы.
+
+-- Проще сделать одну бд с одной структурой для клиента и сервера. 
+sql.Query([[CREATE TABLE IF NOT EXISTS cinema_history_shaft ( 
+	id INTEGER PRIMARY KEY,
+	type VARCHAR(32),
+	url VARCHAR(1024),
+	title VARCHAR(512),
+	data VARCHAR(2048),
+	duration NUMERIC NOT NULL DEFAULT 0, 
+	thumbnail VARCHAR(256),
+	count NUMERIC NOT NULL DEFAULT 0,
+	lastRequest NUMERIC NOT NULL DEFAULT 0,
+	theater VARCHAR(16) DEFAULT 0
+)]])
+
 module( "theater", package.seeall )
 
 Theaters = {}
@@ -120,7 +138,7 @@ function IsFlagSupported( Theater, flag )
 	return bit.band( Theater:GetFlags(), flag ) == flag
 end
 
-local function ServiceMatch( Theater, service, data )
+local function ServiceMatch( Theater, service, data, ifsearchserials, body )
 
 	-- Make sure this service can be used in the theater
 	if service.TheaterType and (!Theater or !IsFlagSupported(Theater, service.TheaterType)) then
@@ -129,7 +147,16 @@ local function ServiceMatch( Theater, service, data )
 
 	-- Check if url matches
 	if service:Match( data ) then
-
+	
+		if service.isSerials then
+			if ifsearchserials then
+			-- Ага, интересный способ сделать поиск сериалов. Похуй. 
+				return service:SeriesMatch( body )
+			else 
+				return 
+			end
+		end
+		
 		-- Get url info
 		return service:GetURLInfo( data )
 
@@ -163,7 +190,7 @@ local function GetURLInfo( url, Theater )
 			continue
 		end
 
-		info = ServiceMatch( Theater, service, data )
+		info = ServiceMatch( Theater, service, data, false )
 		if istable(info) then
 			info.Type = service:GetClass()
 			return info
@@ -185,6 +212,45 @@ local function GetURLInfo( url, Theater )
 
 end
 
+local function SerialsService( body, url, Theater )
+	
+	-- Parse url
+	local status, data = pcall( url2.parse2, url )
+	if !status then
+		print( "ERROR:\n" .. tostring(data) )
+		return false
+	end
+
+	if !data then
+		return false
+	end
+
+	-- Keep reference to original url
+	data.encoded = url
+
+	local info
+
+	-- Iterate through each service to check if the url is a valid request
+	for _, service in pairs( Services ) do
+
+		-- Ignore certain services
+		if service.Hidden then
+			continue
+		end
+
+		info = ServiceMatch( Theater, service, data, true, body )
+		if istable(info) then
+			info.Type = service:GetClass()
+			info.isSerials = service.isSerials
+			return info
+		end
+
+	end
+
+	return false
+
+end
+
 function ExtractURLData( url, Theater )
 
 	-- Parse url info
@@ -194,6 +260,19 @@ function ExtractURLData( url, Theater )
 		return
 	end
 
+	return info
+end
+
+function ChechIfSerialsService( body, url, Theater )
+
+	-- Parse url info
+	local status, info = pcall( SerialsService, body, url, Theater )
+	
+	if !status then
+		print( "ERROR:\n" .. tostring(info) )
+		return
+	end
+	print(status, info)
 	return info
 
 end

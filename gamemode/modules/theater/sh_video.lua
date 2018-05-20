@@ -29,6 +29,7 @@ function VIDEO:Init( info, ply )
 
 	o._VideoType = info.Type or ""
 	o._VideoData = info.Data or ""
+	o._VideoDataExtra = info.DataExtra or ""
 	o._VideoStart = info.StartTime or 0
 
 	o._VideoTitle = string.gsub(info.Title or "(Unknown)", '%%', '%%%%')
@@ -48,6 +49,10 @@ end
 
 function VIDEO:Data()
 	return self._VideoData
+end
+
+function VIDEO:DataExtra()
+	return self._VideoDataExtra
 end
 
 function VIDEO:Title()
@@ -209,6 +214,10 @@ if SERVER then
 
 					if info.data then
 						self._VideoData = info.data
+					end
+					
+					if info.dataextra then
+						self._VideoDataExtra = info.dataextra
 					end
 
 					if info.type then

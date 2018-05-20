@@ -18,7 +18,7 @@ function SERVICE:GetVideoInfo( data, onSuccess, onFailure )
 	
 		local info = {}
 		
-		info = DTS['ZonaParse'](body, info)
+		info = DTS['ZonaParse'](body, info, string.format( DT['ZonaAPI'], data ))
 		
 		if onSuccess then
 			pcall(onSuccess, info)
@@ -51,7 +51,7 @@ if CLIENT then
 			panel:QueueJavascript( str )
 		end
 		
-		self:Fetch( Video:Data(), onReceive, onFailure )
+		self:Fetch( Video:DataExtra(), onReceive, onFailure )
 	end
 end
 

@@ -95,3 +95,77 @@ hook.Add( "PostDrawTranslucentRenderables", "DrawPlayerNames", function()
 	end
 	
 end )
+
+local string = string
+local str = string
+local str2
+
+
+local function OnPlayerChat( ply, strText, bTeamOnly, bPlayerIsDead )
+
+	local tab = {}
+	
+	local defcol = Color( 0, 201, 0 )
+	
+	if GAMEMODE.round_state and ply:IsSpec() and not bPlayerIsDead then
+		bPlayerIsDead = true
+	end
+	
+	if ( IsValid( ply ) ) then
+		
+		if ( bPlayerIsDead ) then
+		
+			table.insert( tab, Color( 255, 30, 40 ) )
+			
+			table.insert( tab, "*DEAD* " )
+			
+		end	
+		
+		if ( !bTeamOnly ) then
+			table.insert( tab, Color(255,255,255) )
+			table.insert( tab, ply:GetLocationShortName() )
+			table.insert( tab, Color( 255, 130, 140 ) )
+			table.insert( tab, ' | ' )
+		end
+		
+		
+	
+
+
+		table.insert( tab, defcol )
+		
+		table.insert( tab, ply )
+		
+	else
+	
+		table.insert( tab, Color( 0, 0, 0 ) )
+		table.insert( tab, "(Console)" )
+		
+	end
+
+	table.insert( tab, Color( 255, 255, 255 ) )
+	
+	table.insert( tab, ": "..string.Trim(strText ))
+	
+	chat.AddText( unpack( tab ) )
+ 
+	
+	if IsValid(ChatWindow) and  IsValid(panel2dropeedlist) and IsValid(ply) then
+		local Dbutus = vgui.Create( "DPanel", ChatWindow)
+		Dbutus:SetSize(panel2dropeedlist:GetWide(),30 + 2)
+		Dbutus:SetText("")
+		Dbutus:Dock( BOTTOM )
+		Dbutus.ply = ply:Nick()
+		Dbutus.tesm = ply:Team()
+		Dbutus.strText = strText
+		Dbutus.Paint = function( s, w, h )
+			draw.SimpleText(s.ply, "name", 10, 8, team.GetColor(s.tesm), TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER)
+			draw.SimpleText(s.strText, "name", 10, 20, Color(255,255,255), TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER)
+		end	
+		ChatWindow:AddItem(Dbutus)	
+	end
+	
+	return true
+	
+end
+hook.Add( "OnPlayerChat", "Tags.OnPlayerChat", OnPlayerChat )

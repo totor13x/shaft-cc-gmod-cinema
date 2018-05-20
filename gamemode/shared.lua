@@ -22,6 +22,10 @@ include( 'translations.lua' )
 Loader.Load( "extensions" )
 Loader.Load( "modules" )
 
+xxxServices = {
+	['24video'] = true,
+	xvideos = true,
+} 
 -- Load Map configuration file
 local strMap = GM.FolderName .. "/gamemode/maps/" .. game.GetMap() .. ".lua"
 if file.Exists( strMap, "LUA" ) then

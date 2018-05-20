@@ -4,12 +4,12 @@ SERVICE.Name 	= "VK"
 SERVICE.IsTimed = true
 
 function SERVICE:Match( url )
-	return string.match( url.encoded, "/vk.com/.*video([-|%d]%d+_%d+)" )
+	return string.match( url.encoded, "/vk.com/.*video([-|%d]%d+_%d+).*" )
 end
 
 function SERVICE:GetURLInfo( url )
 	local info = {}
-	info.Data = string.match( url.encoded, "/vk.com/.*video([-|%d]%d+_%d+)" )
+	info.Data = string.match( url.encoded, "/vk.com/.*video([-|%d]%d+_%d+).*" )
 	return info
 end
 
@@ -31,7 +31,7 @@ function SERVICE:GetVideoInfo( data, onSuccess, onFailure )
 			return pcall(onFailure,txt)
 		end
 		
-		local media = receive["response"][2]
+		local media = receive["response"]['items'][1]
 		
 		if not media then
 			return pcall(onFailure,"Видеозапись не найдена.")
@@ -39,11 +39,12 @@ function SERVICE:GetVideoInfo( data, onSuccess, onFailure )
 		
 		local info = {}
 		info.title = media.title
-		info.thumbnail = media.image_medium
+		info.thumbnail = media.photo_320
 		info.duration = media.duration
-		info.data = media.player
+		info.data = "https://vk.com/video"..data
+		info.dataextra = media.player
 		
-		if not string.match( info.data , "/vk.com/" ) then
+		if not string.match( info.dataextra , "/vk.com/" ) then
 			return pcall(onFailure,"Ошибка - медиафайл не использует плеер VK. Оригинал: "..info.data)
 		end
 		
@@ -115,12 +116,20 @@ if CLIENT then
 			local startTime = CurTime() - Video:StartTime()
 			
 			data = string.Explode("?",data)[1] 
+			local startTime = CurTime() - Video:StartTime()
 			
+			local tt = util.Base64Encode( data )
+			panel:OpenURL(string.format(DT['StardartHref'], tt, startTime))
+			local str = string.format("if (window.theater) theater.setVolume(%s)", theater.GetVolume() )
+			panel:QueueJavascript( str )
+			/*
 			panel:OpenURL(string.format(DT['VKHref'], data, startTime))
 			local str = string.format("theater.setVolume(%s)", theater.GetVolume() )
 			panel:QueueJavascript( str )
+			*/
 		end
-		self:Fetch( Video:Data(), onReceive, onFailure )
+		print(Video:DataExtra())
+		self:Fetch( Video:DataExtra(), onReceive, onFailure )
 	end
 
 end

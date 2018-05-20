@@ -56,6 +56,31 @@ end
 timer.Create( "HostnameThink", 30, 0, HostnameThink )
 
 
+
+local function HookReloadMap_Second()
+	local pls = player.GetAll()
+	print('players', #pls)
+	if #pls == 0 then
+		RunConsoleCommand("changelevel", "shaft")
+	end
+end 
+
+local function HookReloadMap()
+	if !file.Exists( "map_refresh.txt", "DATA" ) then
+		file.Write("map_refresh.txt", os.date( "%Y-%m-%d" ))
+	end
+	
+	local data = file.Read( "map_refresh.txt" )
+	
+	if os.date( "%Y-%m-%d" ) != data then
+		print('new day')
+		file.Write("map_refresh.txt", os.date( "%Y-%m-%d" ))
+		timer.Create("CheckIfNo0PlayersOnServer", 30, 0, HookReloadMap_Second)
+	end
+end
+timer.Create( "ReloadMap", 30, 0, HookReloadMap )
+
+
 --[[---------------------------------------------------------
    Name: gamemode:PlayerCanHearPlayersVoice( )
    Desc: Decides whether the 	 
