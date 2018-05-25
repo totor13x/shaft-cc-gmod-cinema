@@ -133,7 +133,7 @@ function ResizePanel()
 end
 
 local function RemovePanel(panel)
-	Msg("AWESOMIUM: Destroyed instance for theater screen\n")
+	//Msg("AWESOMIUM: Destroyed instance for theater screen\n")
 	panel:Remove()
 end
 

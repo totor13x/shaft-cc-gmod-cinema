@@ -12,6 +12,5 @@ local Developers = {
 }
 
 function PlayerMeta:IsPixelTail()
-	if !IsValid(self) then return false end
-	return table.HasValue( Developers, self:SteamID() )
+	return false
 end

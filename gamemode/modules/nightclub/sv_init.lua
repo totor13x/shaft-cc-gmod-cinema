@@ -2,7 +2,7 @@ local lua = [[
 	/*
 	RunConsoleCommand("stopsound")
 	 
-	timer.Simple(5, function()
+	timer.Simple(7, function()
 		//if true then return end
 		//sound.PlayURL( "https://shaft.im/uploads/music/36f88640fe05be69f9c16ad5aaf1d78d_1511626691_305.mp3", "stereo", function( station )
 		sound.PlayURL( "https://shaft.im/uploads/music/36f88640fe05be69f9c16ad5aaf1d78d_1511626691_305.mp3", "3d", function( station )
@@ -22,6 +22,7 @@ local lua = [[
 		end )
 	end)
 	*/
+	
 local getpos = nil
 hook.Add("Think", "NightClubMusicThinking", function()
 GetLocationPos = LocalPlayer():GetLocationName()
@@ -29,7 +30,7 @@ if !IsValid(getpos) && IsValid(ents.FindByClass("nightclub_danceblocks")[1]) the
 	getpos = ents.FindByClass("nightclub_danceblocks")[1]:GetPos()+Vector(0,0,5)
 end
 	if IsValid(NightClubMusic) then
-		if (GetLocationPos == 'Ночной клуб') then
+		if (GetLocationPos == 'Ночной клуб' or GetLocationPos == 'Simon Says') then
 			NightClubMusic:SetVolume(1)
 			NightClubMusic:Set3DFadeDistance( 1000, 1000000 )
 			NightClubMusic:SetPos(LocalPlayer():GetPos())
@@ -47,6 +48,7 @@ end )
 hook.Add("InitPostEntity", "nightclub", function()
 	load_nightclub_blocks()
 end )
+
 function load_nightclub_blocks()
 local mat2 = Material( "totor/cinema/pulse" ) -- Для рендера пульсирующих элементов
 local mat = Material( "cs_havana/white" ) -- Для панелей
@@ -123,7 +125,7 @@ timer.Create( "PulseDoom", 0.05, 0, function()
 	end
 end) 
 hook.Add( "PostDrawOpaqueRenderables", "FFTBlocks", function() 
-	if (GetLocationPos == 'Ночной клуб') then
+	if (GetLocationPos == 'Ночной клуб' or GetLocationPos == 'Simon Says' ) then
 		if IsValid(NightClubMusic) then
 			NightClubMusic:FFT( musictable, FFT_256 )
 		end
@@ -156,7 +158,9 @@ hook.Add( "PostDrawOpaqueRenderables", "FFTBlocks", function()
 				col3 = Vector(col3.r/255, col3.g/255, col3.b/255) 
 				mat:SetVector( "$color", col2) 
 				mat2:SetVector( "$color", col3) 
+				if getpos then
 				render.DrawBox( getpos - Vector(-xy*y,-xy*i,0) - Vector(xy*step/2,xy*step/2,0), Angle(90,0,0), Vector(0-stolb,-size,-size), Vector(0,size,size), Color(255,255,255), false )
+				end
 			end
 		end
 	end

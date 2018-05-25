@@ -29,12 +29,12 @@ end
 // returns a table of locations for the specified map, or the current map if nil
 function GetLocations( strMap )
 
-	if ( !strMap ) then
+	if ( !strMap or strMap == nil ) then
 		strMap = game.GetMap()
 	end
 	
 	strMap = string.lower( strMap )
-
+	
 	for _, v in pairs( Maps ) do
 		if ( v.Name == strMap ) then return v.Locations end
 	end

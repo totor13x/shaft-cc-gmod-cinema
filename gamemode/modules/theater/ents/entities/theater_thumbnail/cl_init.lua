@@ -62,7 +62,7 @@ local hangs = { "p", "g", "y", "q", "j" }
 local tw, th, ty, scale, bw, bh, by = nil
 function ENT:DrawSubtitle( str, height )
 
-	surface.SetFont( "TheaterInfoMedium" )
+	surface.SetFont( "S_Bold_80" )
 
 	-- Get text dimensions
 	tw, th = surface.GetTextSize( str )

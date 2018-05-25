@@ -70,7 +70,7 @@ function DrawActiveTheater( bDrawingDepth, bDrawingSkybox )
 		-- Draw 'Loading...' incase page takes too long to load
 		surface.SetDrawColor( 0, 0, 0, 255 )
 		surface.DrawRect( 0, 0, w, h )
-		draw.SimpleText( LoadingStr, "VideoInfoLarge", w / 2, h / 2, Color(255,255,255,255), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER )
+		draw.SimpleText( LoadingStr, "S_Bold_145", w / 2, h / 2, Color(255,255,255,255), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER )
 
 		draw.HTMLTexture( theater.ActivePanel(), w, h )
 
@@ -117,18 +117,18 @@ function DrawVideoInfo( w, h, scale )
 	if LastTitle != T( Video:Title() ) or WasFullscreen != theater.Fullscreen then
 		LastTitle = T( Video:Title() )
 		WasFullscreen = theater.Fullscreen
-		Title = string.reduce( LastTitle, "VideoInfoMedium", w )
+		Title = string.reduce( LastTitle, "S_Bold_70", w )
 	end
-	draw.TheaterText( Title, "VideoInfoMedium", 10, 10, Color(255,255,255,255), TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP )
+	draw.TheaterText( Title, "S_Bold_70", 10, 10, Color(255,255,255,255), TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP )
 
 	-- Volume
-	draw.TheaterText( T('Volume'):upper(), "VideoInfoSmall", w - 72, 120, Color(255,255,255,255), TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP )
-	draw.TheaterText( GetVolume() .. "%", "VideoInfoMedium", w - 72, 136, Color(255,255,255,255), TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP )
+	draw.TheaterText( T('Volume'):upper(), "S_Bold_35", w - 72, 120, Color(255,255,255,255), TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP )
+	draw.TheaterText( GetVolume() .. "%", "S_Bold_70", w - 72, 136, Color(255,255,255,255), TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP )
 
 	-- Vote Skips
 	if NumVoteSkips > 0 then
-		draw.TheaterText( T('Voteskips'):upper(), "VideoInfoSmall", w - 72, 230, Color(255,255,255,255), TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP )
-		draw.TheaterText( NumVoteSkips .. "/" .. ReqVoteSkips, "VideoInfoMedium", w - 72, 246, Color(255,255,255,255), TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP )
+		draw.TheaterText( T('Voteskips'):upper(), "S_Bold_35", w - 72, 230, Color(255,255,255,255), TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP )
+		draw.TheaterText( NumVoteSkips .. "/" .. ReqVoteSkips, "S_Bold_70", w - 72, 246, Color(255,255,255,255), TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP )
 	end
 
 	-- Timed video info
@@ -143,11 +143,11 @@ function DrawVideoInfo( w, h, scale )
 
 		-- Current Time
 		local strSeconds = string.FormatSeconds(math.Clamp(math.Round(current), 0, Video:Duration()))
-		draw.TheaterText( strSeconds, "VideoInfoMedium", 16, h - bh, Color(255,255,255,255), TEXT_ALIGN_LEFT, TEXT_ALIGN_BOTTOM )
+		draw.TheaterText( strSeconds, "S_Bold_70", 16, h - bh, Color(255,255,255,255), TEXT_ALIGN_LEFT, TEXT_ALIGN_BOTTOM )
 
 		-- Duration
 		local strDuration = string.FormatSeconds(Video:Duration())
-		draw.TheaterText( strDuration, "VideoInfoMedium", w - 16, h - bh, Color(255,255,255,255), TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM )
+		draw.TheaterText( strDuration, "S_Bold_70", w - 16, h - bh, Color(255,255,255,255), TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM )
 	end
 
 	-- Loading indicater
@@ -159,8 +159,13 @@ function DrawVideoInfo( w, h, scale )
 
 end
 
-function DrawFullscreen()
+hook.Add("InitPostEntity","CLOUD_CREATEADMINTABLE",function()
+	if IsValid(CLOUD_ADMINTABLE) then
+		CLOUD_ADMINTABLE:Remove()
+	end
+end)
 
+function DrawFullscreen()
 	if Fullscreen then
 
 		draw.HTMLTexture( ActivePanel(), ScrW(), ScrH() )
@@ -168,8 +173,6 @@ function DrawFullscreen()
 		if LastInfoDraw + InfoDrawDelay > CurTime() then
 			DrawVideoInfo( ScrW(), ScrH(), 0.1 )
 		end
-
 	end
-
 end
 hook.Add( "HUDPaint", "DrawFullscreenInfo", DrawFullscreen )

@@ -1,5 +1,3 @@
-surface.CreateFont( "3D2DName", { font = "Bebas Neue", size = 135, weight = 600 } )
-
 local function DrawName( ply, opacityScale )
 
 	if !IsValid(ply) or !ply:Alive() then return end
@@ -25,17 +23,35 @@ local function DrawName( ply, opacityScale )
 	opacity = opacity * opacityScale
 
 	local name = "  " .. string.upper( ply:GetName() )
-
+	
+	
 	cam.Start3D2D( pos, Angle( 0, ang.y, 90 ), 0.15 )
 
 		-- render.OverrideDepthEnable(false, true)
 
-		draw.TheaterText( name, "3D2DName", 50, 0, Color( 255, 255, 255, opacity ) )
+		draw.TheaterText( name, "S_ExtraBold_125", 50, 0, Color( 255, 255, 255, opacity ) )
 		
 		-- render.OverrideDepthEnable(false, false)
 
 	cam.End3D2D()
+	
+	local dolj, col = "", Color(0,0,0)
+	if ply:GetUserGroup() != 'user' then
+		for _, k in pairs(adlist) do
+			if ply:GetUserGroup() == k[1] then
+				dolj = k[3]
+				col = k[4]
+			end
+		end
+	end
+	
+	pos = pos + Vector( 0, 0, -15 )
+	col.a = opacity
+	cam.Start3D2D( pos, Angle( 0, ang.y, 90 ), 0.15 )
 
+		draw.TheaterText( "    "..string.upper( dolj ), "S_ExtraBold_70", 50, 0, col )
+
+	cam.End3D2D()
 end
 
 local HUDTargets = {}

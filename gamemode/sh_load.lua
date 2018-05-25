@@ -104,7 +104,7 @@ function LoadEnts( strDirectory, strGamemode )
 			LoadAction( entFolder, strGamemode, LoadEntities )
 		end
 		
-	end
+	end 
 	
 end
 

@@ -1,7 +1,7 @@
 game.AddParticles( "particles/cinema_fx.pcf" )
 PrecacheParticleSystem( "cn_rain" )
 
-Location.Add( "shaft",
+Location.Add( "shaft_mf",
 {
 
 	[ "Lobby" ] =
@@ -57,7 +57,7 @@ Location.Add( "shaft",
 	[ "Concessions" ] =
 	{
 		Min = Vector( -414.78909301758, 5.2761745452881, -27.878173828125 ),
-		Max = Vector( 388.34725952148, 261.86242675781, 133.07136535645 ),
+		Max = Vector( 388.34725952148, 345.86242675781, 133.07136535645 ),
 		ShortName = "Лобби",
 	},
 
@@ -101,6 +101,12 @@ Location.Add( "shaft",
 		Max = Vector( -767.18127441406, -2735.5051269531, -1273.3291015625 ),
 		ShortName = "Клуб",
 	},
+	[ "Simon Says" ] =
+	{
+		Min = Vector( 38.755420684814, -4088.0229492188, -2505.0295410156 ),
+		Max = Vector( 897.01574707031, -2762.3527832031, -1344.5073242188 ),
+		ShortName = "Simon Says",
+	},
 
 
 } )
@@ -133,17 +139,22 @@ if SERVER then
 		return true
 
 	end )
+
 	hook.Add("InitPostEntity", "InitializeCustomEntities", function()
 		local ent = ents.Create("theater_changelog3d");
-		
-		ent:Spawn();
 		ent:SetPos(Vector(445, -0.01, 60))
 		ent:SetAngles(Angle(0, 0, 90))
+		ent:Spawn();
 		
 
 		local ent = ents.Create("nightclub_sound_panel")   
 		ent:SetPos(Vector(-1534, -4000, -1890)) 
 		ent:SetAngles(Angle(0,0,-90)) 
+		ent:Spawn() 
+
+		local ent = ents.Create("minigame_queue")   
+		ent:SetPos(Vector(448, -3619, -1554))
+		ent:SetAngles(Angle(0,0,-90))
 		ent:Spawn() 
 	end)
 

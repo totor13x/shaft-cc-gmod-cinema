@@ -7,7 +7,7 @@ hook.Add( "PlayerThink", "LocationThink", function( ply )
 	if not ply:IsConnected() or (ply:TimeConnected() < DelayThinkSeconds) then return end
 
 	local oldloc = ply:GetLocation()
-	local loc = Find( ply )
+	local loc = Find( ply ) 
 	if oldloc == loc then return end
 	
 	ply:SetLocation(loc)

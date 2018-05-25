@@ -84,24 +84,24 @@ end
    Desc: Called when a player spawns
 -----------------------------------------------------------]]
 local playermodels = {
-	"models/player/group01/male_01.mdl",
-	"models/player/group01/male_02.mdl",
-	"models/player/group01/male_03.mdl",
-	"models/player/group01/male_04.mdl",
-	"models/player/group01/male_05.mdl",
-	"models/player/group01/male_06.mdl",
-	"models/player/group01/male_07.mdl",
-	"models/player/group01/male_08.mdl",
-	"models/player/group01/male_09.mdl",
+	"models/player/zelpa/male_01.mdl",
+	"models/player/zelpa/male_02.mdl",
+	"models/player/zelpa/male_03.mdl",
+	"models/player/zelpa/male_04.mdl",
+	"models/player/zelpa/male_05.mdl",
+	"models/player/zelpa/male_06.mdl",
+	"models/player/zelpa/male_07.mdl",
+	"models/player/zelpa/male_08.mdl",
+	"models/player/zelpa/male_09.mdl",
 }
 
 local playermodels_fem = {
-	"models/player/group01/female_01.mdl",
-	"models/player/group01/female_02.mdl",
-	"models/player/group01/female_03.mdl",
-	"models/player/group01/female_04.mdl",
-	"models/player/group01/female_05.mdl",
-	"models/player/group01/female_06.mdl",
+	"models/player/zelpa/female_01.mdl",
+	"models/player/zelpa/female_02.mdl",
+	"models/player/zelpa/female_03.mdl",
+	"models/player/zelpa/female_04.mdl",
+	"models/player/zelpa/female_05.mdl",
+	"models/player/zelpa/female_06.mdl",
 }
 
 hook.Add("PlayerSpawn", "DeathrunSetPlayerModels", function( pl )
@@ -317,5 +317,47 @@ local plyMeta = FindMetaTable("Player")
 function plyMeta:InitTypeM()
 end
 
+function plyMeta:DeathEffect()
+	local ent = ents.Create( "prop_ragdoll" )
+	ent:SetModel(self:GetModel())
+	ent:Spawn()
+	ent:SetMoveType(MOVETYPE_NONE) 
+	ent:SetCollisionGroup(COLLISION_GROUP_WEAPON)  
+	local vel = self:GetVelocity()
+	for bone = 0, ent:GetPhysicsObjectCount() - 1 do
+		local phys = ent:GetPhysicsObjectNum( bone )
+		if IsValid(phys) then
+			local pos, ang = self:GetBonePosition( ent:TranslatePhysBoneToBone( bone ) )
+			phys:SetPos(pos)
+			phys:SetAngles(ang)
+			//phys:AddVelocity(vel)
+		end
+	end
+
+	local typediss = self:GetNWString("dissolestring")
+	//timer.Simple(60,function()
+	if IsValid(ent) then
+	//print(typediss)
+	  //if typediss == 'standart_diss' then
+		ent.oldname=ent:GetName()
+		ent:SetName("fizzled"..ent:EntIndex().."");
+		local dissolver = ents.Create( "env_entity_dissolver" );
+		if IsValid(dissolver) then
+		  dissolver:SetPos( ent:GetPos() );
+		  dissolver:SetOwner( ent );
+		  dissolver:Spawn();
+		  dissolver:Activate();
+		  dissolver:SetKeyValue( "target", "fizzled"..ent:EntIndex().."" );
+		  dissolver:SetKeyValue( "magnitude", 100 );
+		  dissolver:SetKeyValue( "dissolvetype", 0 );
+		  dissolver:Fire( "Dissolve" );
+		  timer.Simple( 1, function()
+			if IsValid(ent) then 
+			  ent:SetName(corpseoldname)
+			end
+		  end)
+		end
+	end
+end
 //OplataGruppiSID("STEAM_0:1:58105", 60*60*24*30*12, "superadmin")
 //OplataGruppiSID("STEAM_0:1:58105", 60*60*24*30*12, "superadmin")

@@ -9,10 +9,10 @@ include( 'player.lua' )
 
 RunConsoleCommand("sv_friction", 5)
 RunConsoleCommand("sv_sticktoground", 0)
-RunConsoleCommand("sv_airaccelerate", 120)
+RunConsoleCommand("sv_airaccelerate", 120) 
 RunConsoleCommand("sv_gravity", 860)
 
-resource.AddWorkshop( "118824086" ) -- cinema gamemode
+//resource.AddWorkshop( "118824086" ) -- cinema gamemode
 
 timer.Create( "TheaterPlayerThink", 1, 0, function()
 	for _, v in pairs( player.GetAll() ) do
@@ -61,7 +61,7 @@ local function HookReloadMap_Second()
 	local pls = player.GetAll()
 	print('players', #pls)
 	if #pls == 0 then
-		RunConsoleCommand("changelevel", "shaft")
+		RunConsoleCommand("changelevel", "shaft_mf")
 	end
 end 
 
@@ -135,4 +135,21 @@ function GM:PlayerSwitchFlashlight( ply, enable )
 
 	return true
 
+end
+
+
+function RewardPlayer( ply, amt, reason )
+	if PS then
+		amt = amt or 0
+		ply:PS_GivePoints( amt )
+		ply:PS_Notify("Вы получили "..tostring( amt ).." поинтов "..(reason or "playing").."!")
+	end
+end
+
+function RDMPSPlayer( ply, amt, reason )
+	if PS then
+		amt = amt or 0
+		ply:PS_TakePoints( amt )
+		ply:PS_Notify("У вас забрали "..tostring( amt ).." поинтов "..(reason or "playing").."!")
+	end
 end

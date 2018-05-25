@@ -5,7 +5,7 @@ if CLIENT then
 	translations = {}
 
 	local Languages = {}
-	local DefaultId = "en"
+	local DefaultId = "ru"
 
 	function translations.GetLanguage()
 		return GetConVarString("gmod_language")
@@ -53,82 +53,6 @@ if CLIENT then
 		end
 
 		return tag
-	end
-
-		
-	local z = {}
-	z['А']='À'
-	z['Б']='Á'
-	z['В']='Â'
-	z['Г']='Ã'
-	z['Д']='Ä'
-	z['Е']='Å'
-	z['Ё']='²'
-	z['Ж']='Æ'
-	z['З']='Ç'
-	z['И']='È'
-	z['Й']='É'
-	z['К']='Ê'
-	z['Л']='Ë'
-	z['М']='Ì'
-	z['Н']='Í'
-	z['О']='Î'
-	z['П']='Ï'
-	z['Р']='Ð'
-	z['С']='Ñ'
-	z['Т']='Ò'
-	z['У']='Ó'
-	z['Ф']='Ô'
-	z['Х']='Ö'
-	z['Ц']='Õ'
-	z['Ч']='Ø'
-	z['Ш']='Ù'
-	z['Щ']='Ú'
-	z['Ъ']='Û'
-	z['Ы']='Ü'
-	z['Ь']='Ý'
-	z['Э']='¡'
-	z['Ю']='¢'
-	z['Я']='£'
-	z['а']='à'
-	z['б']='á'
-	z['в']='â'
-	z['г']='ã'
-	z['д']='ä'
-	z['е']='å'
-	z['ё']='æ'
-	z['ж']='æ'
-	z['з']='ç'
-	z['и']='è'
-	z['й']='é'
-	z['к']='ê'
-	z['л']='ë'
-	z['м']='ì'
-	z['н']='í'
-	z['о']='î'
-	z['п']='ï'
-	z['р']='ð'
-	z['с']='ñ'
-	z['т']='ò'
-	z['у']='ó'
-	z['ф']='ô'
-	z['х']='õ'
-	z['ц']='ö'
-	z['ч']='ø'
-	z['ш']='ù'
-	z['щ']='ú'
-	z['ъ']='û'
-	z['ы']='ü'
-	z['ь']='ý'
-	z['э']='þ'
-	z['ю']='ÿ'
-	z['я']='¦'
-
-	function translations.replacer(str)
-		for i,v in pairs(z) do
-		str = string.gsub( str, i, v )
-		end 
-		return str
 	end
 	
 	function translations.FormatChat( key, ... )

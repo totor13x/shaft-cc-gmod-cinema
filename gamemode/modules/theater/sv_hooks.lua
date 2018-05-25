@@ -11,7 +11,7 @@ function GM:PreVideoQueued( Video, Theater )
 	-- This shouldn't happen, but we'll check just in case
 	if !IsValid(ply) then return false end
 
-	-- Disregard filtering admin requests
+	-- Disregard filtering admin requests 
 	if ply:IsAdmin() then return true end
 
 	-- Public theaters should be slightly more managed

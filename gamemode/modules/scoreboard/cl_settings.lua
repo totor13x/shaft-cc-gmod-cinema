@@ -122,7 +122,7 @@ function SETTINGS:Create()
 	HD:AlignLeft( 16 )
 	HD:SetSize(256,20)
 	HD:AlignTop( self.TitleHeight + 40 )
-	HD.Label:SetFont( "LabelFont" )
+	HD.Label:SetFont( "S_LightItalic_20" )
 	HD.Label:SetColor( color_white )
 	HD.Label:SetTall(50)
 

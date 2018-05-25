@@ -1,4 +1,5 @@
-surface.CreateFont( "LabelFont", { font = "Open Sans Light", size = 22, weight = 200 } )
+surface.CreateFont( "LabelFont", { font = "S_LightItalic_20", size = 20, antialias = true, antialias = true, extended = true} )
+//surface.CreateFont( "LabelFont", { font = "Mikadan", size = 22, weight = 300, antialias = true, extended = true, } )
 
 SCOREBOARD = {}
 SCOREBOARD.TheaterHeight = 456
