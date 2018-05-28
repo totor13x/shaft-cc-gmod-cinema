@@ -13,6 +13,8 @@ DT['HTTP_AJAX_ZONA'] = DT['ZonaDomain']..'/ajax/video/' // Только ID ну�
 DT['24videoDomain'] = "24video.sexy" //Ссылка на 24video
 DT['24videoAPI'] = 'http://'..DT['24videoDomain']..'/video/downloadZonaUrl?id=%s' //Парс 24video
 
+DT['Anime365API'] = 'https://smotret-anime.ru/translations/embed/%s' //Ссылка на плеер сервиса Anime365
+
 
 util.AddNetworkString( "UpdateDT" )
 
@@ -67,6 +69,7 @@ DTS['KaduParse'] = function(body, info)
 	info.title = DTS.DecodeURI(string.sub(body,0,a-1))
 	body = string.sub(body,b+1)
 	info.title = string.gsub( info.title, '+', ' ' )
+
 	return info
 end
 

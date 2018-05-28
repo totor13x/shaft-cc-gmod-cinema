@@ -168,7 +168,7 @@ function ADMIN:Think()
 	if RealTime() > self.NextUpdate then
 		self:Update()
 		self:InvalidateLayout()
-		self.NextUpdate = RealTime() + 4.0
+		self.NextUpdate = RealTime() + 3.0
 	end
 
 end

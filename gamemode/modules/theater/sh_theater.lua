@@ -507,6 +507,7 @@ if SERVER then
 
 			-- Send video info to player who requested the video
 			-- Used to store request history
+			
 			net.Start("PlayerVideoQueued")
 				net.WriteString( url )
 				net.WriteString( vid:Title() )
@@ -936,6 +937,7 @@ if SERVER then
 			//!Удалить панель у овнера
 			self._DoorEnt:SetLock( ent )
 			ent:SetParentDoor( self._DoorEnt )
+			
 		end
 	end
 	

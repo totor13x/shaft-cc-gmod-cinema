@@ -12,9 +12,15 @@ end
 function meta:GetLocationName()
 	return Location.GetLocationNameByIndex( self:GetLocation() )
 end
+
 function meta:GetLocationShortName()
 	local global = Location.GetLocationByIndex( self:GetLocation() ) 
 	return ((global and global.ShortName ) ~= nil and global.ShortName or "Неизвестно")
+end
+
+function meta:GetLocationFullName()
+	local global = Location.GetLocationByIndex( self:GetLocation() ) 
+	return ((global and global.FullName ) ~= nil and global.FullName or "Неизвестно")
 end
 
 function meta:SetLocation(locationId)

@@ -131,6 +131,14 @@ function PANEL:SetHTML( html )
 			//self.RequestButton.BackgroundColor = Color(32, 123, 29)
 			aa.Type = nil
 			aa.isSerials = nil
+			local func = nil
+			local text = aa.specText == nil and 'Выбор серии' or aa.specText
+			if isfunction(aa.extraParser) then
+				func = aa.extraParser
+			end
+			aa.extraParser = nil
+			aa.specText = nil
+			
 			local ButtonSize = 32
 			self.RequestButton:SetVisible(false)
 			
@@ -144,7 +152,11 @@ function PANEL:SetHTML( html )
 			self.DButton.BackgroundColor = Color(123, 32, 29)
 			self.DButton.DoClick = function()
 				local x,y = self.DComboBox:GetSelected()
-				RequestVideoURL(y)
+				if func then
+					func(_, y)
+				else
+					RequestVideoURL(y)
+				end
 			end
 			
 			self.DComboBox = vgui.Create( "DComboBox", self )
@@ -152,7 +164,7 @@ function PANEL:SetHTML( html )
 			self.DComboBox:SetSize( (ButtonSize*8)-120, ButtonSize )
 			self.DComboBox:DockMargin( 8, 4, 4, 4 )
 			self.DComboBox:SetSortItems( false )
-			self.DComboBox:SetValue( "Выбор серии" )
+			self.DComboBox:SetValue( text )
 			self.DComboBox.OnSelect = function( panel, index, value )	
 				self.DButton:SetDisabled( false )
 			end

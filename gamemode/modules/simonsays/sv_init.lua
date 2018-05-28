@@ -269,7 +269,7 @@ end
 
 function StartPlay()
 	IsSay5Second = false
-	print('startgame')
+	
 	local id = table.Count(Minigame1.PlayerPrepareToPlay)
 	if id < 2 then StopRounds() return end
 	Minigame1.PlayerNow = {}

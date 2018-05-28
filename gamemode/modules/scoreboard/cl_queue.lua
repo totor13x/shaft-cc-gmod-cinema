@@ -13,7 +13,7 @@ function QUEUE:Init()
 	self:SetPos( 8, ScrH() / 2 - ( self:GetTall() / 2 ) )
 
 	self.Title = Label( T'Queue_Title', self )
-	self.Title:SetFont( "ScoreboardTitle" )
+	self.Title:SetFont( "S_Light_50" )
 	self.Title:SetColor( Color( 255, 255, 255 ) )
 
 	self.Videos = {}

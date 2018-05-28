@@ -1,3 +1,25 @@
+local textcolor_pulsed = Vector(1,1,1)
+
+function DrawHUD()
+	if !Fullscreen then
+		local hudpulse = Vector(1,1,1)
+		
+		if (GetLocationPos == 'Ночной клуб' or GetLocationPos == 'Simon Says') then
+		
+			local col2 = Color(255,255 - (trap[0] or 0 ),255 - (trap[0] or 0 ))
+			hudpulse = Vector(col2.r/255, col2.g/255, col2.b/255)
+			
+		end
+		
+		textcolor_pulsed = LerpVector(FrameTime()*9, textcolor_pulsed, hudpulse )
+		
+		
+		draw.RoundedBox( 4, 20, ScrH()-60, 150, 40, Color(0,0,0,200) )
+		draw.SimpleText( string.upper(LocalPlayer():GetLocationFullName()), "S_Regular_20", (150)/2+20, ScrH()-40, textcolor_pulsed:ToColor(), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER )
+	end
+end
+hook.Add( "HUDPaint", "DrawShaftHUD", DrawHUD )
+
 surface.CreateFont( "TextNumbers", { size = 40, weight = 100 } )
 surface.CreateFont( "TextFr", { font = "default", size = 40 } )
 
@@ -68,7 +90,6 @@ end
 
 function PANEL:DoClick()
 	self.LerpedColorAlphaBlock = 255
-	print("asdasd")
 end
 
 vgui.Register( "SButton", PANEL, "DButton" )

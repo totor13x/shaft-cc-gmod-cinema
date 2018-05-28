@@ -189,7 +189,7 @@ if SERVER then
 			if results != nil and istable(results) then
 
 				results = results[1]
-
+				self._VideoDataExtra = results.dataextra or ""
 				self._VideoTitle = results.title or "(Unknown)"
 				self._VideoDuration = tonumber(results.duration) or -1
 				self._VideoThumbnail = results.thumbnail or ""

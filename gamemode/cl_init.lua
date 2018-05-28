@@ -185,10 +185,13 @@ function CreateOpenSansFonts(name, font, size)
 	if string.find(name, "Italic") then
 		params['italic'] = true
 	end
+	if string.find(name, "Light") then
+		params['weight'] = 100
+	end
 	surface.CreateFont( name.."_"..size, params )
 end
 
-local sizes = {10,20,30,35,40,50,60,70,80,90,100,110,120,125,130,140,145,150}
+local sizes = {10,15,20,30,35,40,50,60,70,80,90,100,110,120,125,130,140,145,150}
 local fonts = {}
 fonts['OpenSans-BoldItalic-ShaftIM'] = "S_BoldItalic"
 fonts['OpenSans-Bold-ShaftIM'] = "S_Bold"

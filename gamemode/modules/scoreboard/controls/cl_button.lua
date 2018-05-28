@@ -29,7 +29,7 @@ function PANEL:Init()
 	self.BaseClass.Init(self)
 
 	self:SetTall( 28 )
-	self:SetFont( "LabelFont" )
+	self:SetFont( "S_Light_20" )
 
 end
 

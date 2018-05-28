@@ -116,7 +116,6 @@ if CLIENT then
 			local startTime = CurTime() - Video:StartTime()
 			
 			data = string.Explode("?",data)[1] 
-			local startTime = CurTime() - Video:StartTime()
 			
 			local tt = util.Base64Encode( data )
 			panel:OpenURL(string.format(DT['StardartHref'], tt, startTime))
@@ -128,7 +127,6 @@ if CLIENT then
 			panel:QueueJavascript( str )
 			*/
 		end
-		print(Video:DataExtra())
 		self:Fetch( Video:DataExtra(), onReceive, onFailure )
 	end
 

@@ -1,5 +1,5 @@
 local lua = [[
-	/*
+/*	
 	RunConsoleCommand("stopsound")
 	 
 	timer.Simple(7, function()
@@ -21,14 +21,40 @@ local lua = [[
 			end
 		end )
 	end)
-	*/
 	
+	
+	-- Mute theater on losing focus to Garry's Mod window
+	local FocusState, HasFocus, LastVolume = true, true, theater.GetVolume()
+	hook.Add( "Think", "TheaterMuteOnFocusChange", function()
+
+		if not MuteNoFocus:GetBool() then return end
+
+		HasFocus = system.HasFocus()
+
+		if ( LastState and !HasFocus ) or ( !LastState and HasFocus ) then
+			
+			if HasFocus == true then
+				theater.SetVolume( LastVolume )
+				LastVolume = nil
+			else
+				LastVolume = theater.GetVolume()
+				theater.SetVolume( 0 )
+			end
+
+			LastState = HasFocus
+
+		end
+
+	end )
+*/	
+
 local getpos = nil
 hook.Add("Think", "NightClubMusicThinking", function()
-GetLocationPos = LocalPlayer():GetLocationName()
-if !IsValid(getpos) && IsValid(ents.FindByClass("nightclub_danceblocks")[1]) then
-	getpos = ents.FindByClass("nightclub_danceblocks")[1]:GetPos()+Vector(0,0,5)
-end
+	GetLocationPos = LocalPlayer():GetLocationName()
+	if !IsValid(getpos) && IsValid(ents.FindByClass("nightclub_danceblocks")[1]) then
+		getpos = ents.FindByClass("nightclub_danceblocks")[1]:GetPos()+Vector(0,0,5)
+	end
+	
 	if IsValid(NightClubMusic) then
 		if (GetLocationPos == 'Ночной клуб' or GetLocationPos == 'Simon Says') then
 			NightClubMusic:SetVolume(1)
@@ -45,6 +71,7 @@ end
 		end
 	end
 end )
+
 hook.Add("InitPostEntity", "nightclub", function()
 	load_nightclub_blocks()
 end )
@@ -100,9 +127,9 @@ timer.Create( "PulseDoom", 0.05, 0, function()
 			end
 			trap[key] = trap[key] or limitcolor
 			trap[key+1] = trap[key+1] or limitcolor
-			local udd =1
+			local udd = 2
 			if minus then
-				udd = -1
+				udd = -2
 			end
 			trap[key+1] = trap[key]
 			trap[key] = trap[key] - udd

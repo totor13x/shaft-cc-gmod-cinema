@@ -39,6 +39,7 @@ sql.Query([[CREATE TABLE IF NOT EXISTS cinema_history_shaft (
 	url VARCHAR(1024),
 	title VARCHAR(512),
 	data VARCHAR(2048),
+	dataextra VARCHAR(2048),
 	duration NUMERIC NOT NULL DEFAULT 0, 
 	thumbnail VARCHAR(256),
 	count NUMERIC NOT NULL DEFAULT 0,
@@ -84,7 +85,7 @@ function GetByLocation( locId, setup )
 				
 				-- Cache keyvalues
 				local kv = screen.keyvalues
-				
+
 				info = {}
 				info.Name = kv.Name or kv.name or "[Missing Name]"
 				info.Flags = tonumber(kv.flags) or THEATER_NONE
@@ -107,7 +108,7 @@ function GetByLocation( locId, setup )
 						info.DoorEnt = target[1]
 					end
 				end
-				
+
 				info.Flags = fixOldFlags(info)
 
 			end
@@ -242,6 +243,8 @@ local function SerialsService( body, url, Theater )
 		if istable(info) then
 			info.Type = service:GetClass()
 			info.isSerials = service.isSerials
+			info.extraParser = service.ExtraParser
+			info.specText = service.SpecialText
 			return info
 		end
 
@@ -272,7 +275,7 @@ function ChechIfSerialsService( body, url, Theater )
 		print( "ERROR:\n" .. tostring(info) )
 		return
 	end
-	print(status, info)
+	
 	return info
 
 end

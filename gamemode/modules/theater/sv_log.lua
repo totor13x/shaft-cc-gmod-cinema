@@ -48,6 +48,7 @@ function LogVideo( Video, Theater )
 	local data = sql.SQLStr(Video:Data())
 	local duration = Video:Duration()
 	local thumbnail = sql.SQLStr(Video:Thumbnail())
+	local dataextra = sql.SQLStr(Video:DataExtra())
 
 	local str = "SELECT count FROM cinema_history_shaft WHERE " ..
 		string.format("type='%s' AND ", Type) ..
@@ -73,7 +74,7 @@ function LogVideo( Video, Theater )
 
 		-- Insert new entry into the table
 		str = "INSERT INTO cinema_history_shaft " ..
-			"(type,title,data,duration,thumbnail,count,lastRequest,theater) " ..
+			"(type,title,data,duration,thumbnail,count,lastRequest,dataextra,theater) " ..
 			string.format( "VALUES ('%s', ", Type ) ..
 			string.format( "%s, ", title ) ..
 			string.format( "%s, ", data ) ..
@@ -81,6 +82,7 @@ function LogVideo( Video, Theater )
 			string.format( "%s, ", thumbnail ) ..
 			string.format( "'%s', ", 0 ) ..
 			string.format( "'%s', ", os.time() ) ..
+			string.format( "%s, ",dataextra ) ..
 			string.format("'%s')", Theater["Id"])
 	end
 	

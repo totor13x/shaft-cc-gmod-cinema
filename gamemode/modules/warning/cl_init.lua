@@ -1,6 +1,4 @@
 local color_box_bg = Color(0,0,0,200)
-local WarningFont = "WarningFont"
-surface.CreateFont( WarningFont, { font = "Open Sans Light", size = 28, weight = 200 } )
 
 local pairs = pairs
 local ScrW = ScrW
@@ -33,7 +31,7 @@ local p = 10
 local w, h, hoffset
 function Draw()
 
-	surface.SetFont( WarningFont )
+	surface.SetFont( "S_Light_30" )
 
 	for k, msg in pairs( Messages ) do
 
@@ -42,7 +40,7 @@ function Draw()
 		hoffset = ((h * k) - h) * 2
 
 		draw.RoundedBox( 4, (ScrW()/2) - w/2 - p, h - p + hoffset, w + p*2, h + p*2, color_box_bg )
-		draw.SimpleText( msg, WarningFont, ScrW()/2 - w/2, hoffset + h, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_BOTTOM )
+		draw.SimpleText( msg, "S_Light_30", ScrW()/2 - w/2, hoffset + h, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_BOTTOM )
 
 	end
 
