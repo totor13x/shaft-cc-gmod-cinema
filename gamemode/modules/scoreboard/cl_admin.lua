@@ -6,8 +6,20 @@ local ADMIN = {}
 ADMIN.TitleHeight = 64
 ADMIN.VidHeight = 32 // 48
 
-function ADMIN:Init()
+local PlyTab
+local PlayerList
 
+local refreshPlayerList = function()
+	PlayerList:Clear()
+	PlayerList:SetText( 'Выбрать зрителя' )
+	for k,v in pairs(PlyTab) do
+		PlayerList:AddChoice(v:Nick())
+	end
+end
+
+function ADMIN:Init()
+	
+	
 	local Theater = LocalPlayer():GetTheater()
 
 	self:SetZPos( 1 )
@@ -98,11 +110,47 @@ function ADMIN:Init()
 		self.Options:AddItem(NameButton)
 
 	end
+	
+	if Theater and Theater:IsPrivate() then
+		PlayerList = vgui.Create( "TheaterPlayerList" )
+		
+		PlyTab = Location.GetPlayersInLocation(LocalPlayer():GetLocation())
+		
+		refreshPlayerList()
+		
+		self.Options:AddItem(PlayerList)
 
+		
+		local KickButton = vgui.Create( "TheaterButton" )
+		KickButton:SetText( 'Выгнать зрителя' )
+		KickButton.DoClick = function(self)
+			net.Start("KickRequest")
+				net.WriteEntity(PlyTab[PlayerList:GetSelectedID()])
+			net.SendToServer()
+		end
+		self.Options:AddItem(KickButton)
+		
+	end
+	
+	if Theater and Theater:IsPrivate() then
+
+		local HideOption = vgui.Create( "TheaterCheckBoxLabel" )
+		HideOption:SetText("Скрыть просматриваемый контент")
+		HideOption:SetChecked(false)
+		HideOption.OnChange = function( _, val )
+			print(val)
+			RunConsoleCommand("cinema_hide",tostring(val))
+		end
+		self.Options:AddItem(HideOption)
+	end
+	
 end
 
 function ADMIN:Update()
-
+	
+	PlyTab = Location.GetPlayersInLocation(LocalPlayer():GetLocation())
+	refreshPlayerList()
+	
 	local Theater = LocalPlayer():GetTheater() // get player's theater from their location
 	if !Theater then return end
 
@@ -120,7 +168,7 @@ function ADMIN:Think()
 	if RealTime() > self.NextUpdate then
 		self:Update()
 		self:InvalidateLayout()
-		self.NextUpdate = RealTime() + 3.0
+		self.NextUpdate = RealTime() + 4.0
 	end
 
 end

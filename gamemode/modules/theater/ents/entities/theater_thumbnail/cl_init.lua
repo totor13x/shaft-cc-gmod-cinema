@@ -126,6 +126,9 @@ function ENT:DrawText()
 	if TranslatedTitle == "" then
 		x = 150
 	else
+		if self:GetPrivate() then
+			TranslatedTitle = "Владелец театра предпочел скрыть название"
+		end
 		self:DrawSubtitle( TranslatedTitle, 300 )
 	end
 	self:DrawSubtitle( TranslatedName, x )
@@ -139,10 +142,10 @@ function ENT:OnRemoveHTML()
 end
 
 function ENT:DrawThumbnail()
-
+	
 	-- Thumbnail isn't set yet
 	
-	if self:GetThumbnail() == "" then
+	if (self:GetThumbnail() == "") or (self:GetPrivate()) then
 		
 		surface.SetDrawColor( 80, 80, 80 )
 		surface.SetMaterial( DefaultThumbnail )
@@ -152,90 +155,91 @@ function ENT:DrawThumbnail()
 		
 	else -- Thumbnail is valid
 		
-		-- URL has changed
-		if (!self.LastURL or self.LastURL != self:GetThumbnail()) then
-
-			if ValidPanel( self.HTML ) then
-				self:OnRemoveHTML()
-				self.HTML:Remove()
-			end
-
-			self.LastURL = self:GetThumbnail()
-			self.ThumbMat = nil
-
-		elseif self.LastURL and !self.ThumbMat then
-			
-			if !ValidPanel( self.HTML ) then
-
-				-- Create HTML panel to load thumbnail
-				self.HTML = vgui.Create( "Awesomium" )
-				self.HTML:SetSize( ThumbWidth, ThumbHeight )
-				self.HTML:SetPaintedManually(true)
-				self.HTML:SetKeyBoardInputEnabled(false)
-				self.HTML:SetMouseInputEnabled(false)
-				self.HTML:OpenURL( self:GetThumbnail() )
-
-
-			elseif !self.HTML:IsLoading() and !self.JSDelay then
-
-				-- Force thumbnail sizes
-				self.HTML:RunJavascript( [[
-					var nodes = document.getElementsByTagName('img');
-					for (var i = 0; i < nodes.length; i++) {
-						nodes[i].style.width = '100%';
-						nodes[i].style.height = '100%';
-						
-					}
-				]] )
-
-				if xxxServices[self:GetType()] then
+			-- URL has changed
+			if (!self.LastURL or self.LastURL != self:GetThumbnail()) then
+	
+				if ValidPanel( self.HTML ) then
+					self:OnRemoveHTML()
+					self.HTML:Remove()
+				end
+	
+				self.LastURL = self:GetThumbnail()
+				self.ThumbMat = nil
+	
+			elseif self.LastURL and !self.ThumbMat then
+				
+				if !ValidPanel( self.HTML ) then
+	
+					-- Create HTML panel to load thumbnail
+					self.HTML = vgui.Create( "Awesomium" )
+					self.HTML:SetSize( ThumbWidth, ThumbHeight )
+					self.HTML:SetPaintedManually(true)
+					self.HTML:SetKeyBoardInputEnabled(false)
+					self.HTML:SetMouseInputEnabled(false)
+					self.HTML:OpenURL( self:GetThumbnail() )
+	
+	
+				elseif !self.HTML:IsLoading() and !self.JSDelay then
+	
+					-- Force thumbnail sizes
 					self.HTML:RunJavascript( [[
 						var nodes = document.getElementsByTagName('img');
 						for (var i = 0; i < nodes.length; i++) {
-							nodes[i].style['-webkit-filter'] = 'blur(7px)';
-							nodes[i].style['filter'] = 'blur(7px)';							
+							nodes[i].style.width = '100%';
+							nodes[i].style.height = '100%';
+							
 						}
 					]] )
+	
+					if xxxServices[self:GetType()] then
+						self.HTML:RunJavascript( [[
+							var nodes = document.getElementsByTagName('img');
+							for (var i = 0; i < nodes.length; i++) {
+								nodes[i].style['-webkit-filter'] = 'blur(7px)';
+								nodes[i].style['filter'] = 'blur(7px)';							
+							}
+						]] )
+					end
+	
+					self.JSDelay = true
+	
+					-- Add delay to wait for JS to run
+					timer.Simple(0.1, function()
+	
+						if !IsValid(self) then return end
+						if !ValidPanel(self.HTML) then return end
+	
+						-- Grab HTML material
+						self.HTML:UpdateHTMLTexture()
+						self.ThumbMat = self.HTML:GetHTMLMaterial()
+	
+						-- Do some math to get the correct size
+						local pw, ph = self.HTML:GetSize()
+	
+						-- Convert to scalar
+						self.w = ThumbWidth / pw
+						self.h = ThumbHeight / ph
+	
+						-- Fix for non-power-of-two html panel size
+						pw = pw * (math.power2(pw) / pw)
+						ph = ph * (math.power2(ph) / ph)
+	
+						self.w = self.w * pw
+						self.h = self.h * ph
+	
+						-- Free resources after grabbing material
+						self:OnRemoveHTML()
+						self.HTML:Remove()
+						self.JSDelay = nil
+	
+					end)
+	
+				else
+					return -- Waiting for download to finish
 				end
-
-				self.JSDelay = true
-
-				-- Add delay to wait for JS to run
-				timer.Simple(0.1, function()
-
-					if !IsValid(self) then return end
-					if !ValidPanel(self.HTML) then return end
-
-					-- Grab HTML material
-					self.HTML:UpdateHTMLTexture()
-					self.ThumbMat = self.HTML:GetHTMLMaterial()
-
-					-- Do some math to get the correct size
-					local pw, ph = self.HTML:GetSize()
-
-					-- Convert to scalar
-					self.w = ThumbWidth / pw
-					self.h = ThumbHeight / ph
-
-					-- Fix for non-power-of-two html panel size
-					pw = pw * (math.power2(pw) / pw)
-					ph = ph * (math.power2(ph) / ph)
-
-					self.w = self.w * pw
-					self.h = self.h * ph
-
-					-- Free resources after grabbing material
-					self:OnRemoveHTML()
-					self.HTML:Remove()
-					self.JSDelay = nil
-
-				end)
-
-			else
-				return -- Waiting for download to finish
+	
 			end
-
-		end
+		
 
 	end
 

@@ -2,6 +2,12 @@ module( "theater", package.seeall )
 
 THEATER = {}
 
+if SERVER then
+	util.AddNetworkString("RequestOwnership")
+	util.AddNetworkString("KickRequest")
+end
+
+
 function THEATER:Init( locId, info )
 
 	local o = {}
@@ -11,6 +17,8 @@ function THEATER:Init( locId, info )
 
 	o.Id = locId -- Location ID
 	o._Name = info.Name or "Theater"
+	
+	o._Hidden = false
 	o._Flags = info.Flags or THEATER_NONE
 	o._Pos = info.Pos or Vector(0,0,0)
 	o._Ang = info.Ang or Angle(0,0,0)
@@ -70,6 +78,10 @@ end
 
 function THEATER:Name()
 	return self._Name
+end
+
+function THEATER:IsHidden()
+	return self._Hidden
 end
 
 function THEATER:GetLocation()
@@ -249,7 +261,9 @@ if SERVER then
 	function THEATER:Reset()
 
 		self._Name = self._OriginalName
-
+		
+		self._Hidden = false
+		
 		self:ClearQueue()
 		self:ClearSkipVotes()
 		self:SetupThumbnailEntity()
@@ -305,12 +319,15 @@ if SERVER then
 	end
 
 	function THEATER:SyncThumbnail()
-
+		
 		if !IsValid( self._ThumbEnt ) then return end
 
+		
 		self._ThumbEnt:SetTheaterName( self:Name() )
+		self._ThumbEnt:SetPrivate( self:IsHidden() )
 		self._ThumbEnt:SetTitle( self:VideoTitle() )
-
+		
+		
 	end
 
 	/*
@@ -919,7 +936,6 @@ if SERVER then
 			//!Удалить панель у овнера
 			self._DoorEnt:SetLock( ent )
 			ent:SetParentDoor( self._DoorEnt )
-			
 		end
 	end
 	
@@ -934,6 +950,42 @@ if SERVER then
 		end
 	end
 	
+	net.Receive("RequestOwnership", function(len,ply)
+		if !IsValid(ply:GetTheater():GetOwner()) then // Следует забанить? (Хотя нет, тут может быть админ)
+			ply:GetTheater():RequestOwner(ply)
+		end
+	end)
+	net.Receive("KickRequest", function(len,ply)
+		if (ply:GetTheater():GetOwner() == ply) then // Тут тоже? 
+			local kicked = net.ReadEntity()
+			
+			if kicked != ply:GetTheater():GetOwner() then
+				local loc = Location.GetLocationByIndex(ply:GetTheater():GetLocation())
+				
+				local screen = nil
+				local screens = ents.FindByClass( "theater_screen" )
+
+				-- Search for theater_screen entity (Из theater/sh_init.lua)
+				for _, ent in pairs( screens ) do
+					if IsValid(ent) and ent:GetPos():InBox( loc.Min, loc.Max ) then
+						screen = ent
+						break
+					end
+				end
+				if IsValid(screen) then
+					local dr = screen.keyvalues.door
+					
+					for _,v in pairs(ents.GetAll()) do
+						if v:GetName() == dr then
+							pos = v:GetLinkedDoor():GetTeleportEntity():GetPos()
+							kicked:SetPos(pos)
+							break
+						end
+					end
+				end
+			end
+		end
+	end)
 	
 
 end

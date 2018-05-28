@@ -84,7 +84,7 @@ function GetByLocation( locId, setup )
 				
 				-- Cache keyvalues
 				local kv = screen.keyvalues
-
+				
 				info = {}
 				info.Name = kv.Name or kv.name or "[Missing Name]"
 				info.Flags = tonumber(kv.flags) or THEATER_NONE
@@ -107,7 +107,7 @@ function GetByLocation( locId, setup )
 						info.DoorEnt = target[1]
 					end
 				end
-
+				
 				info.Flags = fixOldFlags(info)
 
 			end

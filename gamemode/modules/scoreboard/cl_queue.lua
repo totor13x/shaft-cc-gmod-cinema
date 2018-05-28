@@ -67,7 +67,18 @@ function QUEUE:Init()
 	Volume:SetConVar("cinema_volume")
 	
 	self.Options:AddItem(Volume)
-
+	
+	if LocalPlayer():GetTheater():IsPrivate() then
+		local FullscreenButton = vgui.Create( "TheaterButton" )
+		FullscreenButton:SetText( 'Стать владельцем театра' )
+		FullscreenButton.DoClick = function(self)
+			if !IsValid( LocalPlayer():GetTheater():GetOwner() ) then
+				net.Start("RequestOwnership")
+				net.SendToServer()
+			end
+		end
+		self.Options:AddItem(FullscreenButton)
+	end
 end
 
 function QUEUE:AddVideo( vid )

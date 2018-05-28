@@ -8,6 +8,8 @@ function ENT:SetupDataTables()
 	self:NetworkVar( "String", 1, "Title" )
 	self:NetworkVar( "String", 2, "Thumbnail" )
 	self:NetworkVar( "String", 3, "Type" )
+	
+	self:NetworkVar( "Bool", 0, "Private" )
 
 	if SERVER then
 		self:SetTitle('NoVideoPlaying')

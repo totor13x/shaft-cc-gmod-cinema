@@ -209,6 +209,21 @@ else
 		Theater:SetName( name, ply )
 
 	end)
+	
+	TheaterCommand( "cinema_hide", function( Theater, ply, cmd, args )
+		
+		print("123124")
+		PrintTable(args)
+		print("123124")
+		
+		if Theater:IsPrivate() then
+			local hide = args[1]
+			if hide == nil then return end
+		
+			Theater._Hidden = tobool(hide)
+			Theater:SyncThumbnail()
+		end
+	end)
 
 	TheaterCommand( "cinema_pass", function( Theater, ply, cmd, args )
 
