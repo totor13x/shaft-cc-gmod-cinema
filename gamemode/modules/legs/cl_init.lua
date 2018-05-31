@@ -22,12 +22,8 @@ Legs.LegEnt = nil
 
 function ShouldDrawLegs()
 	return 	Legs.EnabledVar and Legs.EnabledVar:GetBool() and
-			IsValid( Legs.LegEnt ) and
-			( LocalPlayer():Alive() or ( LocalPlayer().IsGhosted and LocalPlayer():IsGhosted() ) ) and
-			-- !Legs:CheckDrawVehicle() and
-			GetViewEntity() == LocalPlayer() and
-			!LocalPlayer():ShouldDrawLocalPlayer() and
-			!LocalPlayer():GetObserverTarget() and
+			IsValid( Legs.LegEnt ) and 
+			not hook.Run("ShouldDrawLocalPlayer", LocalPlayer()) and
 			!LocalPlayer().ShouldDisableLegs
 end
 

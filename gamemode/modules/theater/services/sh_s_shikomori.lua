@@ -7,9 +7,13 @@ SERVICE.SpecialText = "Выбор озвучки/cубтитров"
 
 SERVICE.CanMatchServices = {}
 SERVICE.CanMatchServices['vk.com'] = true
-SERVICE.CanMatchServices['smotret-anime.ru'] = true
+//SERVICE.CanMatchServices['smotret-anime.ru'] = true
 SERVICE.CanMatchServices['sibnet.ru'] = true
 
+SERVICE.MustBeValidate = {}
+SERVICE.MustBeValidate['vk.com'] = true
+
+local url2 = url -- keep reference for extracting url data
 
 function SERVICE:Match( url )
 	return string.match( url.host, "play.shikimori.org" )// && string.match (url.encoded, "kadu.ru/video/(%d+)")
@@ -105,13 +109,35 @@ function SERVICE:SeriesMatch( body )
 	
 	return tab
 end
-
+//https://play.shikimori.org/animes/34612-saiki-kusuo-no-nan-tv-2/video_online/1
 if CLIENT then
+	local function unparseData(url)
+		local status, data = pcall( url2.parse2, url )
+		if !status then
+			print( "ERROR:\n" .. tostring(data) )
+			return false
+		end
+
+		if !data then
+			return false
+		end
+		
+		//PrintTable(data)
+		
+		if SERVICE.MustBeValidate[data.authority] then
+			if data.authority == 'vk.com' then
+				//https://vk.com/video-37468416_456243057
+				return "https://vk.com/video"..data['query']['oid'].."_"..data['query']["amp;id"]
+			end
+		end
+		return url
+	end
 	function SERVICE:ExtraParser( url )
+		print(url, 'Data')
 		local HttpHeaders = {
 			["X-Requested-With"] = "XMLHttpRequest",
 		}
-
+		
 		local request = {
 			url			= url,
 			method		= "GET",
@@ -129,8 +155,9 @@ if CLIENT then
 					a,b = string.find(body,[["]],1, true)
 					href = string.sub(body,0,a-1)
 					body = string.sub(body,b+1)	
+					print("http:"..href, "URI")
 					
-					RequestVideoURL("http:"..href)
+					RequestVideoURL(unparseData("http:"..href))
 				else
 					print( "FAILURE: " .. code )
 					pcall( onFailure, code )

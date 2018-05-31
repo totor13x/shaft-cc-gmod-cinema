@@ -10,10 +10,17 @@ local PlyTab
 local PlayerList
 
 local refreshPlayerList = function()
-	PlayerList:Clear()
-	PlayerList:SetText( 'Выбрать зрителя' )
-	for k,v in pairs(PlyTab) do
-		PlayerList:AddChoice(v:Nick())
+	if IsValid(PlayerList) then
+		PlayerList.Counted = PlayerList.Counted or 0
+		if PlayerList.Counted != table.Count(PlyTab) then
+			PlayerList:Clear()
+			PlayerList.Counted = 0
+			PlayerList.Text = 'Выбрать зрителя' 
+			for k,v in pairs(PlyTab) do
+				PlayerList.Counted = PlayerList.Counted + 1
+				PlayerList:AddChoice(v:Nick())
+			end
+		end
 	end
 end
 
@@ -27,7 +34,7 @@ function ADMIN:Init()
 	self:SetPos( ScrW() - (256 + 8), ScrH() / 2 - ( self:GetTall() / 2 ) )
 
 	self.Title = Label( "", self )
-	self.Title:SetFont( "ScoreboardTitle" )
+	self.Title:SetFont( "S_Light_40" )
 	self.Title:SetColor( Color( 255, 255, 255 ) )
 
 	self.NextUpdate = 0.0
@@ -35,20 +42,28 @@ function ADMIN:Init()
 	self.Options = vgui.Create( "DPanelList", self )
 	self.Options:DockMargin(0, self.TitleHeight + 2, 0, 0)
 	self.Options:SetDrawBackground(false)
-	self.Options:SetPadding( 4 )
-	self.Options:SetSpacing( 4 )
+	//self.Options:SetPadding( 4 )
+	//self.Options:SetSpacing( 4 )
 
 	-- Skip the current video
-	local VoteSkipButton = vgui.Create( "TheaterButton" )
-	VoteSkipButton:SetText( T'Theater_Skip' )
+	local VoteSkipButton = vgui.Create( "SButton" )
+	VoteSkipButton:SetBorders(false)
+	VoteSkipButton.Font = "S_Light_20"
+	VoteSkipButton.Text = T'Theater_Skip'
+	VoteSkipButton:SetTall( 35 )
+	
 	VoteSkipButton.DoClick = function(self)
 		RunConsoleCommand( "cinema_forceskip" )
 	end
 	self.Options:AddItem(VoteSkipButton)
 
 	-- Seek
-	local SeekButton = vgui.Create( "TheaterButton" )
-	SeekButton:SetText( T'Theater_Seek' )
+	local SeekButton = vgui.Create( "SButton" )
+	SeekButton:SetBorders(false)
+	SeekButton.Font = "S_Light_20"
+	SeekButton.Text = T'Theater_Seek'
+	SeekButton:SetTall( 35 )
+	
 	SeekButton.DoClick = function(self)
 
 		Derma_StringRequest( T'Theater_Seek', 
@@ -66,8 +81,12 @@ function ADMIN:Init()
 	if LocalPlayer():IsAdmin() then
 		
 		-- Reset the theater
-		local ResetButton = vgui.Create( "TheaterButton" )
-		ResetButton:SetText( T'Theater_Reset' )
+		local ResetButton = vgui.Create( "SButton" )
+		ResetButton:SetBorders(false)
+		ResetButton.Font = "S_Light_20"
+		ResetButton.Text = T'Theater_Reset'
+		ResetButton:SetTall( 35 )
+		
 		ResetButton.DoClick = function(self)
 			RunConsoleCommand( "cinema_reset" )
 		end
@@ -78,8 +97,11 @@ function ADMIN:Init()
 	-- Private theater options
 	if Theater and Theater:IsPrivate() then
 
-		local NameButton = vgui.Create( "TheaterButton" )
-		NameButton:SetText( T'Theater_ChangeName' )
+		local NameButton = vgui.Create( "SButton" )
+		NameButton:SetBorders(false)
+		NameButton.Font = "S_Light_20"
+		NameButton.Text = T'Theater_ChangeName'
+		NameButton:SetTall( 35 )
 		NameButton.DoClick = function(self)
 			Derma_StringRequest( T'Theater_ChangeName', 
 				"",
@@ -96,8 +118,12 @@ function ADMIN:Init()
 	
 	if Theater and Theater:IsPrivate() then
 
-		local NameButton = vgui.Create( "TheaterButton" )
-		NameButton:SetText( 'Установка пароля' )
+		local NameButton = vgui.Create( "SButton" )
+		NameButton:SetBorders(false)
+		NameButton.Font = "S_Light_20"
+		NameButton.Text = 'Установка пароля'
+		NameButton:SetTall( 35 )
+		
 		NameButton.DoClick = function(self)
 			Derma_StringRequest( 'Какой код?', 
 				"Для работы пароля необходимо 4 цифры",
@@ -112,29 +138,74 @@ function ADMIN:Init()
 	end
 	
 	if Theater and Theater:IsPrivate() then
-		PlayerList = vgui.Create( "TheaterPlayerList" )
-		
-		PlyTab = Location.GetPlayersInLocation(LocalPlayer():GetLocation())
-		
-		refreshPlayerList()
-		
-		self.Options:AddItem(PlayerList)
+			local DPanelw = vgui.Create( "DPanel" )
+			DPanelw.Paint = function() end
+			DPanelw:SetTall(35)
+			//self.Options:AddItem(PlayerList)
 
+			
+			PlayerList = vgui.Create( "SDropDown", DPanelw )
+			PlayerList:Dock( FILL )
+			PlayerList.Counted = 0
+			PlyTab = Location.GetPlayersInLocation(LocalPlayer():GetLocation())
+			
+			refreshPlayerList()
+			
+			local KickButton = vgui.Create( "SButton", DPanelw )
+			KickButton:SetBorders(false)
+			KickButton.Font = "S_Light_20"
+			KickButton.Text = 'Kick'
+			KickButton:SetTall( 35 )
+			KickButton.DoClick = function(self)
+				net.Start("KickRequest")
+					net.WriteEntity(PlyTab[PlayerList:GetSelectedID()])
+				net.SendToServer()
+			end
+			KickButton:Dock( RIGHT )
+			
+			
+		self.Options:AddItem(DPanelw)
 		
-		local KickButton = vgui.Create( "TheaterButton" )
-		KickButton:SetText( 'Выгнать зрителя' )
-		KickButton.DoClick = function(self)
-			net.Start("KickRequest")
-				net.WriteEntity(PlyTab[PlayerList:GetSelectedID()])
-			net.SendToServer()
-		end
-		self.Options:AddItem(KickButton)
+		//self.Options:AddItem(KickButton)
 		
 	end
 	
 	if Theater and Theater:IsPrivate() then
-
-		local HideOption = vgui.Create( "TheaterCheckBoxLabel" )
+	
+		local HideOption = vgui.Create( "SButton" )
+		HideOption:SetBorders(false)
+		HideOption.Font = "S_Light_20"
+		HideOption.Text = ''
+		HideOption.BoolT = false
+		HideOption:SetTall( 35 )
+		HideOption.DoClick = function(self)
+			self.BoolT = !self.BoolT
+			print(self.BoolT)
+			RunConsoleCommand("cinema_hide",tostring(self.BoolT))
+		end
+		HideOption.Think = function(self)
+			if IsValid(Theater) then self.BoolT = Theater._Hidden end
+			if self.BoolT then self.Text = "Показать информацию из превью" else self.Text = "Скрыть информацию из превью" end
+		end
+		self.Options:AddItem(HideOption)
+		/*
+		local HideOption = vgui.Create( "SButton" )
+		HideOption:SetBorders(false)
+		HideOption.Font = "S_Light_20"
+		HideOption.Text = 'Kick'
+		HideOption:SetTall( 35 )
+		HideOption.DoClick = function(self)
+			net.Start("KickRequest")
+				net.WriteEntity(PlyTab[PlayerList:GetSelectedID()])
+			net.SendToServer()
+		end
+		HideOption.Think = function(self)
+			net.Start("KickRequest")
+				net.WriteEntity(PlyTab[PlayerList:GetSelectedID()])
+			net.SendToServer()
+		end
+		self.Options:AddItem(HideOption)
+		local HideOption = vgui.Create( "SCheckBoxLabel" )
 		HideOption:SetText("Скрыть просматриваемый контент")
 		HideOption:SetChecked(false)
 		HideOption.OnChange = function( _, val )
@@ -142,6 +213,7 @@ function ADMIN:Init()
 			RunConsoleCommand("cinema_hide",tostring(val))
 		end
 		self.Options:AddItem(HideOption)
+		*/
 	end
 	
 end
@@ -173,25 +245,6 @@ function ADMIN:Think()
 
 end
 
-local Background = Material( "theater/banner.png" )
-
-function ADMIN:Paint( w, h )
-
-	// Background
-	surface.SetDrawColor( 26, 30, 38, 255 )
-	surface.DrawRect( 0, 0, self:GetWide(), self:GetTall() )
-
-	// Title
-	surface.SetDrawColor( 141, 38, 33, 255 )
-	surface.DrawRect( 0, 0, self:GetWide(), self.Title:GetTall() )
-
-	// Title Background
-	surface.SetDrawColor( 255, 255, 255, 255 )
-	surface.SetMaterial( Background )
-	surface.DrawTexturedRect( 0, -1, 512, self.Title:GetTall() + 1 )
-
-end
-
 function ADMIN:PerformLayout()
 
 	self.Title:SizeToContents()
@@ -207,4 +260,4 @@ function ADMIN:PerformLayout()
 
 end
 
-vgui.Register( "ScoreboardAdmin", ADMIN )
+vgui.Register( "ScoreboardAdmin", ADMIN, "SPanel"  )

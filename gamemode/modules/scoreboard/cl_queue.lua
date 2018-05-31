@@ -13,7 +13,7 @@ function QUEUE:Init()
 	self:SetPos( 8, ScrH() / 2 - ( self:GetTall() / 2 ) )
 
 	self.Title = Label( T'Queue_Title', self )
-	self.Title:SetFont( "S_Light_50" )
+	self.Title:SetFont( "S_Light_40" )
 	self.Title:SetColor( Color( 255, 255, 255 ) )
 
 	self.Videos = {}
@@ -24,62 +24,86 @@ function QUEUE:Init()
 
 	self.Options = vgui.Create( "DPanelList", self )
 	self.Options:SetDrawBackground(false)
-	self.Options:SetPadding( 4 )
-	self.Options:SetSpacing( 4 )
+	self.Options:SetPadding( 0 )
+	self.Options:SetSpacing( 0 )
 
-	-- Theater Options
-	local RequestButton = vgui.Create( "TheaterButton" )
-	RequestButton:SetText( T'Request_Video' )
-	RequestButton.DoClick = function(self)
+		-- Theater Options
+		
+	local RequestButton = vgui.Create( "SButton" )
+	RequestButton:SetBorders(false)
+	RequestButton.Font = "S_Light_20"
+	RequestButton.Text = T'Request_Video'
+	RequestButton:SetTall( 35 )
+	
+	RequestButton.DoClick = function(s)
 		local RequestFrame = vgui.Create( "VideoRequestFrame" )
 		if IsValid(RequestFrame) then
 			RequestFrame:Center()
 			RequestFrame:MakePopup()
 		end
 	end
+	
 	self.Options:AddItem(RequestButton)
 
-	local VoteSkipButton = vgui.Create( "TheaterButton" )
-	VoteSkipButton:SetText( T'Vote_Skip' )
-	VoteSkipButton.DoClick = function(self)
+	local VoteSkipButton = vgui.Create( "SButton" )
+	VoteSkipButton:SetBorders(false)
+	VoteSkipButton.Font = "S_Light_20"
+	VoteSkipButton.Text = T'Vote_Skip'
+	VoteSkipButton:SetTall( 35 )
+	
+	VoteSkipButton.DoClick = function(s)
 		RunConsoleCommand( "cinema_voteskip" )
 	end
+	
 	self.Options:AddItem(VoteSkipButton)
 
-	local FullscreenButton = vgui.Create( "TheaterButton" )
-	FullscreenButton:SetText( T'Toggle_Fullscreen' )
-	FullscreenButton.DoClick = function(self)
+	local FullscreenButton = vgui.Create( "SButton" )
+	FullscreenButton:SetBorders(false)
+	FullscreenButton.Font = "S_Light_20"
+	FullscreenButton.Text = T'Toggle_Fullscreen'
+	FullscreenButton:SetTall( 35 )
+	FullscreenButton.DoClick = function(s)
 		RunConsoleCommand( "cinema_fullscreen" )
 	end
+	
 	self.Options:AddItem(FullscreenButton)
 
-	local RefreshButton = vgui.Create( "TheaterButton" )
-	RefreshButton:SetText( T'Refresh_Theater' )
-	RefreshButton.DoClick = function(self)
+	local RefreshButton = vgui.Create( "SButton" )
+	RefreshButton:SetBorders(false)
+	RefreshButton.Font = "S_Light_20"
+	RefreshButton.Text = T'Refresh_Theater'
+	RefreshButton:SetTall( 35 )
+	RefreshButton.DoClick = function(s)
 		RunConsoleCommand( "cinema_refresh" )
 	end
+	
 	self.Options:AddItem(RefreshButton)
 	
-	local Volume = vgui.Create("TheaterNumSlider")
-	Volume:SetText("")
-	Volume:SetMinMax(0, 100)
-	Volume:SetDecimals(0)
-	Volume:SetConVar("cinema_volume")
 	
-	self.Options:AddItem(Volume)
-	
-	if LocalPlayer():GetTheater():IsPrivate() then
-		local FullscreenButton = vgui.Create( "TheaterButton" )
-		FullscreenButton:SetText( 'Стать владельцем театра' )
-		FullscreenButton.DoClick = function(self)
+	if LocalPlayer():GetTheater():IsPrivate() && !IsValid( LocalPlayer():GetTheater():GetOwner() ) then
+		local VladelecTeater = vgui.Create( "SButton" )
+		VladelecTeater:SetBorders(false)
+		VladelecTeater.Font = "S_Light_20"
+		VladelecTeater.Text = 'Стать владельцем театра'
+		VladelecTeater:SetTall( 35 )
+		VladelecTeater.DoClick = function(self)
 			if !IsValid( LocalPlayer():GetTheater():GetOwner() ) then
 				net.Start("RequestOwnership")
 				net.SendToServer()
 			end
 		end
-		self.Options:AddItem(FullscreenButton)
+		self.Options:AddItem(VladelecTeater)
 	end
-end
+	
+	
+	local Volume = vgui.Create("SNumSlider")
+	Volume:SetText("Громкость")
+	Volume:SetMinMax(0, 100)
+	Volume:SetDecimals(0)
+	Volume:SetConVar("cinema_volume")
+	
+	self.Options:AddItem(Volume)
+end 
 
 function QUEUE:AddVideo( vid )
 	
@@ -162,23 +186,6 @@ end
 
 local Background = Material( "theater/banner.png" )
 
-function QUEUE:Paint( w, h )
-
-	// Background
-	surface.SetDrawColor( 26, 30, 38, 255 )
-	surface.DrawRect( 0, 0, self:GetWide(), self:GetTall() )
-
-	// Title
-	surface.SetDrawColor( 141, 38, 33, 255 )
-	surface.DrawRect( 0, 0, self:GetWide(), self.Title:GetTall() )
-
-	// Title Background
-	surface.SetDrawColor( 255, 255, 255, 255 )
-	surface.SetMaterial( Background )
-	surface.DrawTexturedRect( 0, -1, 512, self.Title:GetTall() + 1 )
-
-end
-
 function QUEUE:PerformLayout()
 
 	self.Title:SizeToContents()
@@ -196,7 +203,7 @@ function QUEUE:PerformLayout()
 
 end
 
-vgui.Register( "ScoreboardQueue", QUEUE )
+vgui.Register( "ScoreboardQueue", QUEUE, "SPanel" )
 
 
 local VIDEO = {}
@@ -268,7 +275,7 @@ end
 
 function VIDEO:Paint( w, h )
 
-	surface.SetDrawColor( 38, 41, 49, 255 )
+	surface.SetDrawColor( 38, 41, 49, 0 )
 	surface.DrawRect( 0, 0, self:GetSize() )
 
 end
@@ -298,7 +305,7 @@ function VIDEOVOTE:Init()
 
 	self.VoteUp = vgui.Create( "DImageButton", self )
 	self.VoteUp:SetSize( 16, 16 )
-	self.VoteUp:SetImage( "theater/up.png" )
+	self.VoteUp:SetImage( "totor/icon/heart.png" )
 	self.VoteUp.DoClick = function()
 
 		RunConsoleCommand( "cinema_voteup", self.Video.Id )
@@ -342,7 +349,7 @@ function VIDEOVOTE:AddRemoveButton()
 
 	self.RemoveBtn = vgui.Create( "DImageButton", self )
 	self.RemoveBtn:SetSize( 16, 16 )
-	self.RemoveBtn:SetImage( "theater/trashbin.png" )
+	self.RemoveBtn:SetImage( "totor/icon/garbage.png" )
 	self.RemoveBtn.DoClick = function()
 		RunConsoleCommand( "cinema_video_remove", self.Video.Id )
 		if ValidPanel(GuiQueue) then
@@ -354,7 +361,7 @@ function VIDEOVOTE:AddRemoveButton()
 			self.RemoveBtn:SetAlpha( 255 )
 			self.RemoveBtn:SetColor( Color(255,0,0) )
 		else
-			self.RemoveBtn:SetAlpha( 25 )
+			self.RemoveBtn:SetAlpha( 255 )
 			self.RemoveBtn:SetColor( Color(255,255,255) )
 		end
 	end
@@ -447,7 +454,7 @@ function VIDEOCONTROLS:AddRemoveButton()
 
 	self.RemoveBtn = vgui.Create( "DImageButton", self )
 	self.RemoveBtn:SetSize( 16, 16 )
-	self.RemoveBtn:SetImage( "theater/trashbin.png" )
+	self.RemoveBtn:SetImage( "totor/icon/garbage.png" )
 	self.RemoveBtn.DoClick = function()
 		RunConsoleCommand( "cinema_video_remove", self.Video.Id )
 		if ValidPanel(GuiQueue) then

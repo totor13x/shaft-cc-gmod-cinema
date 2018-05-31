@@ -42,6 +42,11 @@ end
 
 
 function PANEL:Paint(w,h)
+
+	if ( self.Depressed || self:IsSelected() || self:GetToggle() ) then
+		self.LerpedColorAlphaBlock = 255
+	end
+	
 	if (self.LerpedColorAlphaBlock != 0) then
 		self.LerpedColorAlphaBlock = Lerp(FrameTime()*20, self.LerpedColorAlphaBlock, 0 )
 		if self.LerpedColorAlphaBorders > 120 then
@@ -89,7 +94,6 @@ function PANEL:OnCursorExited()
 end
 
 function PANEL:DoClick()
-	self.LerpedColorAlphaBlock = 255
 end
 
 vgui.Register( "SButton", PANEL, "DButton" )
@@ -102,9 +106,10 @@ function PANEL:Init()
 end
 
 function PANEL:Paint(w,h)
+
+	
 	local x, y = self:LocalToScreen(0, 0)
 
-	surface.SetDrawColor( 255, 255, 255, 255 )
 	surface.SetMaterial( blur )
 
 	for i = 1, 3 do
@@ -114,6 +119,8 @@ function PANEL:Paint(w,h)
 		render.UpdateScreenEffectTexture()
 		surface.DrawTexturedRect( -x, -y, ScrW(), ScrH() )
 	end
+	surface.SetDrawColor( 35, 35, 35, 230 )
+	surface.DrawRect( 0, 0, self:GetWide(), self:GetTall() )
 end
 
 vgui.Register( "SPanel", PANEL, "DPanel" )

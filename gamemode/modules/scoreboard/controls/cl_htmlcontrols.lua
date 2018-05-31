@@ -118,60 +118,61 @@ function PANEL:SetHTML( html )
 
 		self.AddressBar:SetText( url )
 		self:FinishedLoading()
-		
-		if IsValid(self.DComboBox) then self.DComboBox:Remove() end
-		if IsValid(self.DButton) then self.DButton:Remove() end
-		
-		self.RequestButton:SetVisible(true)
-		
-		local aa = theater.ChechIfSerialsService(self.HTML.HTMLCode, url, Theater)
+		if !self.LoadedOnce then
+			if IsValid(self.DComboBox) then self.DComboBox:Remove() end
+			if IsValid(self.DButton) then self.DButton:Remove() end
+			self.LoadedOnce = true
+			self.RequestButton:SetVisible(true)
+			
+			local aa = theater.ChechIfSerialsService(self.HTML.HTMLCode, url, Theater)
 
-		if aa && aa.isSerials then
-			//self.RequestButton:SetDisabled( false )
-			//self.RequestButton.BackgroundColor = Color(32, 123, 29)
-			aa.Type = nil
-			aa.isSerials = nil
-			local func = nil
-			local text = aa.specText == nil and 'Выбор серии' or aa.specText
-			if isfunction(aa.extraParser) then
-				func = aa.extraParser
-			end
-			aa.extraParser = nil
-			aa.specText = nil
-			
-			local ButtonSize = 32
-			self.RequestButton:SetVisible(false)
-			
-			self.DButton = vgui.Create( "TheaterButton", self )
-			self.DButton:Dock( RIGHT )
-			self.DButton:SetDisabled( true )
-			self.DButton:SetSize( 120, ButtonSize )
-			self.DButton:DockMargin( 4, 4, 8, 4 )
-			self.DButton:SetText( "Выбрать" )	
-			self.DButton:SetTooltip( T'Request_Url_Tooltip' )
-			self.DButton.BackgroundColor = Color(123, 32, 29)
-			self.DButton.DoClick = function()
-				local x,y = self.DComboBox:GetSelected()
-				if func then
-					func(_, y)
-				else
-					RequestVideoURL(y)
+			if aa && aa.isSerials then
+				//self.RequestButton:SetDisabled( false )
+				//self.RequestButton.BackgroundColor = Color(32, 123, 29)
+				aa.Type = nil
+				aa.isSerials = nil
+				local func = nil
+				local text = aa.specText == nil and 'Выбор серии' or aa.specText
+				if isfunction(aa.extraParser) then
+					func = aa.extraParser
 				end
-			end
-			
-			self.DComboBox = vgui.Create( "DComboBox", self )
-			self.DComboBox:Dock( RIGHT )
-			self.DComboBox:SetSize( (ButtonSize*8)-120, ButtonSize )
-			self.DComboBox:DockMargin( 8, 4, 4, 4 )
-			self.DComboBox:SetSortItems( false )
-			self.DComboBox:SetValue( text )
-			self.DComboBox.OnSelect = function( panel, index, value )	
-				self.DButton:SetDisabled( false )
-			end
-			
-			//https://online.anidub.com/anime/full/8498-koshechka-iz-sakuraso-sakurasou-no-pet-na-kanojo-24-iz-24.html
-			for i,v in pairs( aa ) do
-				self.DComboBox:AddChoice( v['name'], v['url'] )
+				aa.extraParser = nil
+				aa.specText = nil
+				
+				local ButtonSize = 32
+				self.RequestButton:SetVisible(false)
+				
+				self.DButton = vgui.Create( "TheaterButton", self )
+				self.DButton:Dock( RIGHT )
+				self.DButton:SetDisabled( true )
+				self.DButton:SetSize( 120, ButtonSize )
+				self.DButton:DockMargin( 4, 4, 8, 4 )
+				self.DButton:SetText( "Выбрать" )	
+				self.DButton:SetTooltip( T'Request_Url_Tooltip' )
+				self.DButton.BackgroundColor = Color(123, 32, 29)
+				self.DButton.DoClick = function()
+					local x,y = self.DComboBox:GetSelected()
+					if func then
+						func(_, y)
+					else
+						RequestVideoURL(y)
+					end
+				end
+				
+				self.DComboBox = vgui.Create( "DComboBox", self )
+				self.DComboBox:Dock( RIGHT )
+				self.DComboBox:SetSize( (ButtonSize*8)-120, ButtonSize )
+				self.DComboBox:DockMargin( 8, 4, 4, 4 )
+				self.DComboBox:SetSortItems( false )
+				self.DComboBox:SetValue( text )
+				self.DComboBox.OnSelect = function( panel, index, value )	
+					self.DButton:SetDisabled( false )
+				end
+				
+				//https://online.anidub.com/anime/full/8498-koshechka-iz-sakuraso-sakurasou-no-pet-na-kanojo-24-iz-24.html
+				for i,v in pairs( aa ) do
+					self.DComboBox:AddChoice( v['name'], v['url'] )
+				end
 			end
 		end
 	end
@@ -184,7 +185,7 @@ function PANEL:SetHTML( html )
 		self:UpdateHistory( url )
 		self.HTML:RunJavascript( "console.htmlout(document.body.innerHTML)" )
 		local Theater = LocalPlayer():GetTheater()
-		
+		self.LoadedOnce = false
 		if IsValid(self.DComboBox) then self.DComboBox:Remove() end
 		if IsValid(self.DButton) then self.DButton:Remove() end
 		

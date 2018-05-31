@@ -123,6 +123,8 @@ function GM:CalcView( ply, origin, angles, fov, znear, zfar )
 	view.zfar			= zfar
 	view.drawviewer		= false
 
+	--[[  Блокировка третьего лица при нажатии на ctrl, во время сидения. 
+	
 	--
 	-- Let the vehicle override the view
 	--
@@ -131,7 +133,8 @@ function GM:CalcView( ply, origin, angles, fov, znear, zfar )
 	--
 	-- Let drive possibly alter the view
 	--
-	if ( drive.CalcView( ply, view ) ) then return view end
+	if ( drive.CalcView( ply, view ) ) then return view end 
+	]]
 	
 	--
 	-- Give the player manager a turn at altering the view

@@ -212,14 +212,10 @@ else
 	
 	TheaterCommand( "cinema_hide", function( Theater, ply, cmd, args )
 		
-		print("123124")
-		PrintTable(args)
-		print("123124")
-		
 		if Theater:IsPrivate() then
+			if ply != Theater:GetOwner() then return end
 			local hide = args[1]
 			if hide == nil then return end
-		
 			Theater._Hidden = tobool(hide)
 			Theater:SyncThumbnail()
 		end

@@ -46,9 +46,19 @@ function THEATER:Init( locId, info )
 			o._ThumbInfo = info.ThumbInfo
 			o:SetupThumbnailEntity()
 		end
+		
+		if info.ScreenEntity then
+			o._ScreenEnt = info.ScreenEntity
+		end
+		
+		if info.Opp_ScreenEntity then
+			o._OppScreenEnt = info.Opp_ScreenEntity
+		end
+		
 		if info.DoorEnt then
 			o:SetupDoorEntity( info.DoorEnt )
 		end
+		
 		o._Queue = {}
 		o._QueueCount = 0
 
@@ -286,10 +296,12 @@ if SERVER then
 
 			if IsValid( ent ) then
 				self._ThumbEnt = ent
+				self._ThumbEnt:SetTheaterID(self.Id)
 			elseif self._ThumbInfo then
 				self._ThumbEnt = ents.Create( "theater_thumbnail" )
 				self._ThumbEnt:SetPos( self._ThumbInfo.Pos )
 				self._ThumbEnt:SetAngles( self._ThumbInfo.Ang )
+				self._ThumbEnt:SetTheaterID(self.Id)
 				self._ThumbEnt:Spawn()
 			else
 				return
@@ -567,7 +579,7 @@ if SERVER then
 		net.Send(self.Players)
 
 	end
-
+	//TODO: Новый класс для синхронизации данных кинотеатра.
 	function THEATER:SendVideo( ply )
 
 		-- Remove player if they aren't valid
@@ -589,6 +601,7 @@ if SERVER then
 				net.WriteString( self:VideoTitle() )
 				net.WriteString( self:VideoOwnerName() )
 				net.WriteString( self:VideoOwnerSteamID() )
+				net.WriteBool( self:IsHidden() ) 
 
 				-- Timed video information
 				if IsVideoTimed(self:VideoType()) then
@@ -957,6 +970,7 @@ if SERVER then
 			ply:GetTheater():RequestOwner(ply)
 		end
 	end)
+	
 	net.Receive("KickRequest", function(len,ply)
 		if (ply:GetTheater():GetOwner() == ply) then // Тут тоже? 
 			local kicked = net.ReadEntity()
@@ -964,26 +978,11 @@ if SERVER then
 			if kicked != ply:GetTheater():GetOwner() then
 				local loc = Location.GetLocationByIndex(ply:GetTheater():GetLocation())
 				
-				local screen = nil
-				local screens = ents.FindByClass( "theater_screen" )
-
-				-- Search for theater_screen entity (Из theater/sh_init.lua)
-				for _, ent in pairs( screens ) do
-					if IsValid(ent) and ent:GetPos():InBox( loc.Min, loc.Max ) then
-						screen = ent
-						break
-					end
-				end
-				if IsValid(screen) then
-					local dr = screen.keyvalues.door
+				if IsValid(ply:GetTheater()._ScreenEnt) then
+					local door = ply:GetTheater()._OppScreenEnt
 					
-					for _,v in pairs(ents.GetAll()) do
-						if v:GetName() == dr then
-							pos = v:GetLinkedDoor():GetTeleportEntity():GetPos()
-							kicked:SetPos(pos)
-							break
-						end
-					end
+					door:Use(kicked, kicked, USE_ON, 0)
+
 				end
 			end
 		end

@@ -68,7 +68,7 @@ function GetByLocation( locId, setup )
 
 		-- Attempt to find theater_screen entity within location
 		if !info then
-
+			-- Скрин
 			local screen = nil
 			local screens = ents.FindByClass( "theater_screen" )
 
@@ -76,6 +76,18 @@ function GetByLocation( locId, setup )
 			for _, ent in pairs( screens ) do
 				if IsValid(ent) and ent:GetPos():InBox( loc.Min, loc.Max ) then
 					screen = ent
+					break
+				end
+			end
+			
+			-- Оппозитная входу дверь
+			local door_inside = nil
+			local door_insides = ents.FindByClass( "theater_door" )
+
+			-- Search for theater_screen entity
+			for _, ent in pairs( door_insides ) do
+				if IsValid(ent) and ent:GetPos():InBox( loc.Min, loc.Max ) then
+					door_inside = ent
 					break
 				end
 			end
@@ -89,6 +101,10 @@ function GetByLocation( locId, setup )
 				info = {}
 				info.Name = kv.Name or kv.name or "[Missing Name]"
 				info.Flags = tonumber(kv.flags) or THEATER_NONE
+				info.ScreenEntity = screen
+				
+				info.Opp_ScreenEntity = door_inside
+				
 				info.Pos = screen:GetPos()
 				info.Ang = screen:GetAngles()
 				info.Width = tonumber(kv.width)

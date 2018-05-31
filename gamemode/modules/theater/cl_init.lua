@@ -259,6 +259,7 @@ function ReceiveVideo()
 	info.Title = net.ReadString()
 	info.OwnerName = net.ReadString()
 	info.OwnerSteamID = net.ReadString()
+	local hidden = net.ReadBool() //Этого здесь быть не должно. TODO: Создать новый класс для синхронизации данных. net.Receive
 
 	if IsVideoTimed(info.Type) then
 		info.StartTime = net.ReadFloat()
@@ -270,10 +271,11 @@ function ReceiveVideo()
 
 	-- Private theater owner
 	local Theater = LocalPlayer():GetTheater()
+	
 	if Theater then
 
 		Theater:SetVideo( Video )
-
+		Theater._Hidden = hidden
 		if Theater:IsPrivate() then
 			local owner = net.ReadEntity()
 			if IsValid( owner ) then

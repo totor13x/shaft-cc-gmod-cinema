@@ -77,7 +77,7 @@ function PANEL:Init()
 
 		if not detected then
 
-			control.Add( KEY_F2, function( enabled, held )
+			control.Add( KEY_F1, function( enabled, held )
 				if enabled and !held then
 					SetClipboardText( "http://get.adobe.com/flashplayer/otherversions/" )
 					gui.OpenURL( "http://pixeltailgames.com/cinema/flash.php" )
