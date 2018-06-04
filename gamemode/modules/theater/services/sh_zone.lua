@@ -18,8 +18,10 @@ function SERVICE:GetVideoInfo( data, onSuccess, onFailure )
 	
 		local info = {}
 		
-		info = DTS['ZonaParse'](body, info, string.format( DT['ZonaAPI'], data ))
-		
+		status, info = DTS['ZonaParse'](body, info, string.format( DT['ZonaAPI'], data ))
+		if !status then
+			pcall(onFailure, info)
+		end
 		if onSuccess then
 			pcall(onSuccess, info)
 		end

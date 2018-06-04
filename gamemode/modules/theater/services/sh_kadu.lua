@@ -18,7 +18,7 @@ function SERVICE:GetVideoInfo( data, onSuccess, onFailure )
 	
 		local info = {}
 
-		info = DTS['KaduParse'](body, info)
+		info = DTS['KaduParse'](body, info, data)
 		
 		if onSuccess then
 			pcall(onSuccess, info)
@@ -48,15 +48,15 @@ if CLIENT then
 			body = string.sub(body,b+1)
 
 			local startTime = CurTime() - Video:StartTime()
-			
-			local tt = util.Base64Encode( mp41 )
+			local mp4 = string.find(mp41, '.mp4') and mp41 or mp42
+			local tt = util.Base64Encode( mp4 )
 			
 			panel:OpenURL(string.format(DT['StardartHref'], tt, startTime))
 			local str = string.format("if (window.theater) theater.setVolume(%s)", theater.GetVolume() )
 			panel:QueueJavascript( str )
 				
 		end
-		self:Fetch( Video:Data(), onReceive, onFailure )
+		self:Fetch( Video:DataExtra(), onReceive, onFailure )
 		
 	end
 end

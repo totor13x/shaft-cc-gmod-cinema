@@ -187,6 +187,18 @@ function ADMIN:Init()
 			if IsValid(Theater) then self.BoolT = Theater._Hidden end
 			if self.BoolT then self.Text = "Показать информацию из превью" else self.Text = "Скрыть информацию из превью" end
 		end
+		
+		/* TODO: VIP
+		local old_pa = HideOption.Paint
+		HideOption.FakeActivated = true
+		HideOption.Paint = function(self, w, h)
+			old_pa(self, w, h)
+			draw.RoundedBox( 0, 0, 0, w, h, Color(255,0,0,255) )
+			draw.SimpleText( "ФУНКЦИЯ ДОСТУПНА VIP", self.Font, w/2, h/2, Color(255,255,255), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER )
+		end
+		HideOption.DoClick = function() end
+		*/
+		
 		self.Options:AddItem(HideOption)
 		/*
 		local HideOption = vgui.Create( "SButton" )

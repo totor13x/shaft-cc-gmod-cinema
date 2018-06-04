@@ -43,7 +43,7 @@ end
 
 function PANEL:Paint(w,h)
 
-	if ( self.Depressed || self:IsSelected() || self:GetToggle() ) then
+	if ( self.Depressed || self:IsSelected() || self:GetToggle() ) and !self.FakeActivated then
 		self.LerpedColorAlphaBlock = 255
 	end
 	

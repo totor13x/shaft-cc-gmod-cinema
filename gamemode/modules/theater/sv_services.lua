@@ -7,7 +7,7 @@ DT['StardartHref'] = 'https://shaft.im/apps/cinema/videoplayer.php?url=%s&time=%
 DT['SibnetAPI'] = "http://video.sibnet.ru/shell.php?videoid=%s" //Данные со Sibnet
 DT['SibnetHref'] = 'https://shaft.im/apps/cinema/videoplayer.sibnet.php?url=%s&time=%s' //Специальная маска-ссылка на плеер для sibnet
 DT['youtubeAPIKEY'] = "AIzaSyDxIgu2n-aIMsc2IhKqDrvkJCxkhApevoc" //API Ключ от ютуба 
-DT['ZonaDomain'] = "https://w1.zona.plus" //Ссылка на Zona (потому что блокируется роскомнадзором)
+DT['ZonaDomain'] = "https://w2.zona.plus" //Ссылка на Zona (потому что блокируется роскомнадзором)
 DT['ZonaAPI'] = DT['ZonaDomain'].."/movies/%s" //Парс зоны
 DT['HTTP_AJAX_ZONA'] = DT['ZonaDomain']..'/ajax/video/' // Только ID нужен. Есть защита от парса по IP. Ссылка выдается по IP. 30.12.2017
 DT['24videoDomain'] = "24video.sexy" //Ссылка на 24video
@@ -37,7 +37,7 @@ DTS.DecodeURI = function(str)
 	return str
 end 
 
-DTS['KaduParse'] = function(body, info)
+DTS['KaduParse'] = function(body, info, originalurl)
 
 	local _,a = string.find(body,[["og:image" content="]],1, true)
 	body = string.sub(body,a+1)
@@ -48,7 +48,7 @@ DTS['KaduParse'] = function(body, info)
 	local _,a = string.find(body,[["og:video" content="]],1, true)
 	body = string.sub(body,a+1)
 	a,b = string.find(body,[[" /]],1, true)
-	info.data = string.sub(body,0,a-1)
+	info.dataextra = string.sub(body,0,a-1)
 	body = string.sub(body,b+1)
 			
 	
@@ -69,7 +69,7 @@ DTS['KaduParse'] = function(body, info)
 	info.title = DTS.DecodeURI(string.sub(body,0,a-1))
 	body = string.sub(body,b+1)
 	info.title = string.gsub( info.title, '+', ' ' )
-
+	info.data = originalurl
 	return info
 end
 
@@ -205,6 +205,16 @@ DTS['ZonaParse'] = function(body, info, url)
 	info.duration = tonumber(string.sub(body,0,a-1) or 0)*60
 	body = string.sub(body,b+1)
 	
+	_,a = string.find(body,[[class="abuse">]],1, true)
+	if a then
+		
+		body = string.sub(body,a+1)
+		a,b = string.find(body,[[<]],1, true)
+		info = "Произошла ошибка: "..string.Trim(string.sub(body,0,a-1))
+		body = string.sub(body,b+1)	
+		
+		return false, info
+	end
 	_,a = string.find(body,[[class="entity-player" data-id="]],1, true)
 	body = string.sub(body,a+1)
 	a,b = string.find(body,[["]],1, true)
@@ -219,5 +229,5 @@ DTS['ZonaParse'] = function(body, info, url)
 		
 	info.data = url
 	
-	return info
+	return true, info
 end

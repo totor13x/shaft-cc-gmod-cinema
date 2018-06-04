@@ -53,10 +53,10 @@ function PANEL:Init()
 
 	self.Browser = vgui.Create( "TheaterHTML", self.BrowserContainer )
 
-	Msg("AWESOMIUM: Initialized instance for video request window\n")
+	//Msg("AWESOMIUM: Initialized instance for video request window\n")
 
 	self.Browser:SetAllowLua(true)
-	self.Browser:OpenURL( "http://shaft.im/apps/cinema/queue.php" )
+	self.Browser:OpenURL( "http://shaft.im/apps/cinema/queue_new.php" )
 	self.Browser:AddFunction( "gmod", "cinemaSelect", function( str )
 		RequestVideoURL( str ) -- Print the given string
 	end )
